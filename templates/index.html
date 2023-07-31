@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='checkin.css') }}">
+    {% include 'nav_head.html' %}
+   
+   
+</head>
+<body>
+  {% include 'nav.html' %}
+      <div  class="container mt-1">
+        <div class="row ">
+            <div class="col-md-4 col-sm-12 mb-4 ">
+                <div class="p-4 " id="container_1">
+                <form action="/usercheckin" method="post">
+                    <h3 id="userloginHeading">User Check-In</h3>
+                    <div class="form-group">
+                      <!-- redacted -->
+                      <!-- <label for="InputEmail1">Email address</label>
+                      <input type="email" class="form-control" id="InputEmail1" name="email" placeholder="Enter email"> -->
+                      <label for="username">User Name</label>
+                      <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                      <label for="exampleInputPassword1">Password</label>
+                      <input type="password" name ="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                    </div>
+                    <!-- redacted -->
+                    <!-- <div class="form-group">
+                        <label for="hours">Number of Hours</label>
+                        <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
+                    </div> 
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="memberCheck1">
+                      <label class="form-check-label" for="memberCheck1">Member ?</label>
+                    </div>
+                  -->
+                    <div class="d-flex justify-content-center"> <!-- Centering the button -->
+                        <button type="submit" class="btn btn-primary" id="checkInButton1">Check-In</button>
+                      </div>
+                      
+                  </form>
+                 
+                  </div>
+            </div>
+          <div class="col-md-4 col-sm-12 mb-4">
+            <div   id="myModal">
+                                <p>Checked in successfully!</p>
+              
+          </div>
+          </div>
+            
+            <div class="col-md-4 col-sm-12 mb-4 ">
+                <div class="p-4 " id="container_2">
+                <form>
+                    <h3 id="userloginHeading">Guest Check-In</h3>
+                    <div class="form-group">
+                        <label for="hours">Vehicle Number</label>
+                        <input type="text" class="form-control" id="VinNo" name="VinNo" placeholder="Vehicle Number">
+                    </div>
+                    <div class="form-group">
+                        <label for="hours">Number of Hours</label>
+                        <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
+                    </div>
+                    <div class="d-flex justify-content-center"> <!-- Centering the button -->
+                        <button type="submit" class="btn btn-primary" id="checkInButton2">CheckIn</button>
+                      </div>
+                      
+                      <hr  style=" height:1px;background-color: #3c3c3c" />
+                      <div class="d-flex justify-content-center" style="flex-direction: column;"> <!-- Centering the button -->
+                        <small style="text-align: center;">Don't have account? Create one</small><br>
+                        <a href="{{url_for('signup')}}"><button type="button" class="btn btn-primary" id="submitbtn" >Create Account</button></a> 
+                      </div>
+                  </form>
+                  </div>
+            </div>
+        </div>
+        <div  class="container">
+
+        <div class="row col-md-12 col-sm-12" id="container_1">
+                        <h3 id="userloginHeading" style="height: 100%;">Clock Out</h3>
+
+                        <label for="parkingId" style="display: flex;flex-direction: column;">Parking Id / Username
+                            <input type="text"  id="parkingId" name="parkingId" placeholder="Parking Id">                        
+                        </label>
+                        <button type="submit" class="btn btn-primary" id="submitbtn">Submit</button>     
+        </div>
+        </div>
+    </div> 
+    
+    <script>
+      // JavaScript code for displaying the success message and auto-closing it after 5 seconds
+      document.addEventListener('DOMContentLoaded', () => {
+          // Get the button elements and message container
+          const checkInButton1 = document.getElementById('checkInButton1');
+          const checkInButton2 = document.getElementById('checkInButton2');
+          const modal = document.getElementById('myModal');
+
+          // Function to show the modal and hide it after 5 seconds
+          const showModal = () => {
+              modal.style.display = 'flex'; // Show the modal
+
+              // Hide the modal after 5 seconds
+              setTimeout(() => {
+                  modal.style.display = 'none'; // Hide the modal
+              }, 5000);
+          };
+
+          // When the "Check-In" button in the "User Check-In" section is clicked, show the modal
+          checkInButton1.addEventListener('click', (event) => {
+              event.preventDefault(); // Prevent the default form submission
+              showModal();
+          });
+
+          // When the "Check-In" button in the "Guest Check-In" section is clicked, show the modal
+          checkInButton2.addEventListener('click', (event) => {
+              event.preventDefault(); // Prevent the default form submission
+              showModal();
+          });
+      });
+  </script>
+
+  <!-- Link to Bootstrap JS and any other JS files you may have -->
+  <!-- Add any other necessary JavaScript files here -->
+
+</body>
+</html>
+

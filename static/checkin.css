@@ -1,0 +1,68 @@
+#container_1{
+    width: 100%;
+    border: 2px solid #dddddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(89, 7, 7, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+  padding: 20px 0px 20px 0px;
+  background:#7f7f7f;
+  background:rgba(255,255,255,0.5);
+  display: flex;
+  justify-content: space-evenly;
+}
+#container_2{
+    border: 2px solid #dddddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 20px;
+    background:#7f7f7f;
+  background:rgba(255,255,255,0.5);
+}
+
+#checkInButton1{
+    align-content: center;
+    background-color: #f8d623;
+}
+#checkInButton2{
+  align-content: center;
+  background-color: #f8d623;
+}
+#userloginHeading{
+text-align: center;
+color:#3c3c3c;
+}
+body{
+    background-image: url('https://images.unsplash.com/photo-1604063165585-e17e9c3c3f0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHBhcmtpbmd8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=600&q=60');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+/* Modal styles */
+
+
+
+
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+#myModal {
+  width: 100%;
+  
+  border: 2px solid #dddddd;
+border-radius: 8px;
+box-shadow: 0 4px 6px rgba(89, 7, 7, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+padding: 20px 0px 20px 0px;
+background:#7f7f7f;
+background:rgba(255,255,255,0.5);
+display: flex;
+justify-content: space-evenly;
+  display: none; /* Hide the modal by default */
+  
+}
+
+/* You can add more styles to customize the appearance of the modal */
+
