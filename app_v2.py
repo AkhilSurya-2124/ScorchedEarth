@@ -3,8 +3,8 @@ from functools import wraps
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_sqlalchemy import SQLAlchemy,event
 from os import path
-
-from datetime import datetime,timedelta
+from sqlalchemy import func
+from datetime import datetime,date,timedelta
 
 
 app = Flask(__name__)
@@ -59,7 +59,7 @@ class GUEST(db.Model):
 class DAY(db.Model):
     # __tablename__ = 'DAY'
     #we store the summary here
-    date = db.Column(db.Date,primary_key = True,server_default = str(datetime.today()))
+    date = db.Column(db.Date,primary_key = True,server_default = str(date.today()))
     slots = db.Column(db.Integer,default = 10)
     total_parkers = db.Column(db.Integer,server_default = '0')
     hourly_price = db.Column(db.Integer,server_default = '0')
@@ -68,40 +68,43 @@ class DAY(db.Model):
 class SLOTS(db.Model):
     # __tablename__ = 'DAY'
     #we store the summary here
-    date = db.Column(db.Date,primary_key = True,server_default = str(datetime.today()))
+    date = db.Column(db.Date,primary_key = True,server_default = str(date.today()))
     total_slots = db.Column(db.Integer, server_default = '10')
     available_slots = db.Column(db.Integer,server_default = '10')
 
 
 
-# @event.listens_for(DAY.__table__,'after_create')
-# def insert_def():
-#         print('orreeeee')
-#         db.session.add(DAY())
-#         db.session.add(SLOTS(date = datetime.today().strftime('%Y-%m-%d')))
-#         db.session.commit()
-# db.create_all()
-if not path.exists('theAllKnowing.sqlite'):
-    db.create_all()
+@event.listens_for(SLOTS.__table__,'after_create')
+def insert_def(*args,**kwargs):
+        print('orreeeee')
+        # db.session.add(DAY(date))
+        db.session.add(DAY(date = datetime.today()))
+        db.session.add(SLOTS(date = datetime.today()))
+        db.session.commit()
+db.create_all()
+# if not path.exists('theAllKnowing.sqlite'):
+#     db.create_all()
     
-    print('lmao')
-    db.session.add(DAY(date = datetime.today()))
-    #primary key with default value is not working, idk why
-    db.session.flush()
-    db.session.commit()
-    # db.session.add(SLOTS(date = datetime.today().strftime('%Y-%m-%d')))
-    db.session.add(SLOTS(date = datetime.today()))
-    db.session.flush()
-    db.session.commit()
-    
-
-
+#     print('lmao')
+#     db.session.add(DAY(date = datetime.today()))
+#     #primary key with default value is not working, idk why
+#     db.session.flush()
+#     db.session.commit()
+#     # db.session.add(SLOTS(date = datetime.today().strftime('%Y-%m-%d')))
+#     db.session.add(SLOTS(date = datetime.today()))
+#     db.session.flush()
+#     db.session.commit()
     
 def daily_summary():
-    to_show = DAY.query.filter_by(date = datetime.now())
-    to_insert = DAY.query.filter_by(date = datetime.now() - timedelta(days=1))
-    db.session.add(to_insert)
-    db.session.commit()
+    total_amount_paid = db.session.query(func.sum(TIME.amount_paid)).filter(TIME.date == date.today()).scalar()
+    if total_amount_paid is None:
+        total_amount_paid = 0
+    member_count = db.session.query(func.count()).filter(TIME.membership == 1).scalar()
+    nonmember_count = db.session.query(func.count()).filter(TIME.membership == 0).scalar()
+
+
+
+    
 
 
 
@@ -379,10 +382,10 @@ def error404(e):
 
 
 if __name__ == "__main__":
-    # scheduler = BackgroundScheduler()
-    # scheduler.add_job(func = daily_summary, trigger='cron', hour = 0, minute = 0 )  
-    # # scheduler.add_job(func = notify_admin,trigger = 'interval',seconds = 60)
-    # scheduler.start()
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func = daily_summary, trigger='cron', hour = 13, minute = 39 )  
+    # scheduler.add_job(func = notify_admin,trigger = 'interval',seconds = 60)
+    scheduler.start()
 
     app.run(debug=True)
 
