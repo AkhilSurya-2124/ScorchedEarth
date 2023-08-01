@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='checkin.css') }}">
-
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
     {% include 'nav_head.html' %}
 </head>
 <body>
     {% include 'nav.html' %}
-      <div  class="container mt-3">
+      <div  class="container mt-5">
         <div class="row ">
             <div class="col-md-4 col-sm-12 mb-4 ">
                 <div class="p-4 " id="container_1">
@@ -87,7 +89,7 @@
                             <div class="card-body">
                                 <h3 class="text-center" id="membership_status">HMM, NOT WORKING</h3>
                                 <div class="text-center">
-                                    <button class="btn btn-success mr-2" >Manage Membership</button>
+                                    <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Manage Membership</button>
                                 </div>
                                 
                             </div>
@@ -95,6 +97,68 @@
             </div>
               </div>
               </div>
+                <!-- Modal -->
+  <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content" style="min-width: 800px;">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Manage Membership</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body ">
+            <div class="card-group ">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title ">Card title</h5>
+                        <p class="card-text">
+                            <strong class="balance-label">Wallet Balance:</strong> $500 <br>
+                            <strong class="balance-label">Cost:</strong> $200 <br>
+                            <strong class="balance-label">Remaining Balance:</strong> <span class="balance-value">$300</span> <br>
+                        </p>
+                    </div>
+                </div>
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Duration Plan</h5>
+                 
+<div class="form-check">
+
+  <form action="/subscribe/" id="subscribebutton">
+      <input type="radio" name="flexRadioDefault" id="flexRadioDefault1" checked >
+      <label class="form-check-label" for="flexRadioDefault2">
+            1 Month
+      </label><br>
+      <input  type="radio" name="flexRadioDefault" id="flexRadioDefault2" >
+      <label class="form-check-label" for="flexRadioDefault2">
+        3 Months
+      </label><br>
+      <input  type="radio" name="flexRadioDefault" id="flexRadioDefault2" >
+      <label class="form-check-label" for="flexRadioDefault2">
+        6 Months
+      </label><br>
+      <input  type="radio" name="flexRadioDefault" id="flexRadioDefault2" >
+      <label class="form-check-label" for="flexRadioDefault2">
+      1 Year
+      </label>
+  </form>
+</div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">MemberShip Benfits </h5>
+                    <p class="card-text">This is a wider card  </p>
+                  </div>
+                </div>
+              </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-success mr-2" form="subscribebutton">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </div>
                   </div>
             </div>
         </div>

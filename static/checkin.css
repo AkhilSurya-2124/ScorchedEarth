@@ -35,6 +35,7 @@ body{
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;
+    
 }
 
 /* Modal styles */
@@ -63,6 +64,28 @@ justify-content: space-evenly;
   display: none; /* Hide the modal by default */
   
 }
+
+  .custom-card {
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.custom-card-title {
+    font-size: 1.5rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.balance-label {
+    font-weight: bold;
+}
+
+.balance-value {
+    font-size: 1.2rem;
+    color: #28a745;
+}
+
 
 /* You can add more styles to customize the appearance of the modal */
 
