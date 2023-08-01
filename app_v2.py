@@ -116,7 +116,7 @@ def daily_summary():
     db.session.commit()
 
 
-    
+
 def user_login_required(func):
     @wraps(func)
     #we should always declare a function or class after a decorator...
@@ -168,17 +168,21 @@ def index():
 
 @app.route('/usercheckin',methods=['POST'])
 def usercheckin():
-    u_info = request.form
+    u_info = request.form   
     user_db = USERS.query.filter_by(user_name = u_info['username']).first()
     if user_db and u_info['password'] == user_db.password:
-        
-        flash(f'{session["user"]} successfully checked-in at {datetime.now().hours}:{datetime.now().minutes}')
+        if user_db.parking_status == 1:
+            flash('already_checkedin')
+            return gohome()
+        print('good checkin')
+        flash(f'Hey there {user_db.user_name[0]}, your check-in time is {datetime.now().hour}:{datetime.now().minute}')
         #to-do include membership condition-> should i just do it myself?, in backend we can just
         #verify the condition at backend and calculated the price
-        checkin = TIME(parking_id = session['user'])
+        checkin = TIME(parking_id = user_db.user_name)
         db.session.add(checkin)
         db.session.commit()
         return gohome()
+    print('bad checkin')
     flash('login_failed')  
     #do some math here
     # return redirect(url_for('index'))
@@ -231,7 +235,7 @@ def dashboard():
     # if not slots:
     #     slots = 'not working'
     return render_template('user_dashboard.html',slots = slots,user_data = to_show,flashes = get_flashed_messages())
-#to do -> display content
+#to do -> display content -> don
     #flashes will be a list of strings, need to show them in appropriately using js
 
 '''
@@ -382,7 +386,12 @@ def adminlogin():
 def adminDashboard():
     return render_template('admin_dashboard.html',user_data=session['user_data'])
 
-
+# @app.route('/checkout',methods=['POST'])
+# def checkout():
+#     if user is not checked in display flash 
+#         else checkin 
+#     if request
+    
 
 @app.errorhandler(404)  
 def error404(e):

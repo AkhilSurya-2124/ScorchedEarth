@@ -61,7 +61,7 @@ background:#7f7f7f;
 background:rgba(255,255,255,0.5);
 display: flex;
 justify-content: space-evenly;
-  display: none; /* Hide the modal by default */
+display: none;
   
 }
 

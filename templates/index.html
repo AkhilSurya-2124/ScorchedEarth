@@ -39,7 +39,7 @@
                     </div>
                   -->
                     <div class="d-flex justify-content-center"> <!-- Centering the button -->
-                        <button type="submit" class="btn btn-primary" id="checkInButton1">Check-In</button>
+                        <button type="submit"class="btn btn-primary" id="usercheckin">Check-In</button>
                       </div>
                       
                   </form>
@@ -48,25 +48,25 @@
             </div>
           <div class="col-md-4 col-sm-12 mb-4">
             <div   id="myModal">
-                                <p>Checked in successfully!</p>
+                                <p></p>
               
           </div>
           </div>
             
             <div class="col-md-4 col-sm-12 mb-4 ">
                 <div class="p-4 " id="container_2">
-                <form>
+                <form action="/guestcheckin" method="post">
                     <h3 id="userloginHeading">Guest Check-In</h3>
                     <div class="form-group">
                         <label for="hours">Vehicle Number</label>
-                        <input type="text" class="form-control" id="VinNo" name="VinNo" placeholder="Vehicle Number">
+                        <input type="text" class="form-control" id="VinNo" name="vehiclenumber" placeholder="Vehicle Number">
                     </div>
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="hours">Number of Hours</label>
                         <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
-                    </div>
+                    </div> -->
                     <div class="d-flex justify-content-center"> <!-- Centering the button -->
-                        <button type="submit" class="btn btn-primary" id="checkInButton2">CheckIn</button>
+                        <button type="submit" class="btn btn-primary" id="guestcheckin">Check-In</button>
                       </div>
                       
                       <hr  style=" height:1px;background-color: #3c3c3c" />
@@ -81,46 +81,78 @@
         <div  class="container">
 
         <div class="row col-md-12 col-sm-12" id="container_1">
-                        <h3 id="userloginHeading" style="height: 100%;">Clock Out</h3>
+                        <h3 id="userloginHeading" style="height: 100%;">Check Out</h3>
 
-                        <label for="parkingId" style="display: flex;flex-direction: column;">Parking Id / Username
-                            <input type="text"  id="parkingId" name="parkingId" placeholder="Parking Id">                        
-                        </label>
-                        <button type="submit" class="btn btn-primary" id="submitbtn">Submit</button>     
+                        <form action="/clock">
+                          <label for="parkingId" style="display: flex;flex-direction: column;">Parking Id / Username
+                              
+                                <input type="text"  id="parkingId" name="parkingId" placeholder="Parking Id">
+                               
+                              
+                          </label>
+                          <button type="submit" class="btn btn-primary" id="submitbtn">Check-out</button>
+                        </form>
         </div>
         </div>
     </div> 
     
     <script>
       // JavaScript code for displaying the success message and auto-closing it after 5 seconds
-      document.addEventListener('DOMContentLoaded', () => {
-          // Get the button elements and message container
-          const checkInButton1 = document.getElementById('checkInButton1');
-          const checkInButton2 = document.getElementById('checkInButton2');
-          const modal = document.getElementById('myModal');
+      // document.addEventListener('DOMContentLoaded', () => {
+      //     // Get the button elements and message container
+      //     const usercheckin = document.getElementById('usercheckin');
+      //     const guestcheckin = document.getElementById('guestcheckin');
+      //     const modal = document.getElementById('myModal');
 
-          // Function to show the modal and hide it after 5 seconds
-          const showModal = () => {
-              modal.style.display = 'flex'; // Show the modal
+      //     // Function to show the modal and hide it after 5 seconds
+      //     const showModal = (msg) => {
+      //         modal.style.display = 'flex'; // Show the modal
+      //         modal.innerHTML = msg;
+      //         // Hide the modal after 5 seconds
+      //         setTimeout(() => {
+      //             modal.style.display = 'none'; // Hide the modal
+      //         }, 5000);
+      //     };
 
-              // Hide the modal after 5 seconds
-              setTimeout(() => {
-                  modal.style.display = 'none'; // Hide the modal
-              }, 5000);
-          };
+      //     // When the "Check-In" button in the "User Check-In" section is clicked, show the modal
+      //     usercheckin.addEventListener('click', (event) => {
 
-          // When the "Check-In" button in the "User Check-In" section is clicked, show the modal
-          checkInButton1.addEventListener('click', (event) => {
-              event.preventDefault(); // Prevent the default form submission
-              showModal();
-          });
+      //         event.preventDefault(); // Prevent the default form submission
+      //         if ('{{message | safe }}' == 'login_failed'){
+      //           showModal("Invalid username or password");
+      //         }
+      //         else{
+      //           console.log('{{message|safe}}')
+      //           showModal('Checked in successfully');
+      //         }
+              
+      //     });
 
           // When the "Check-In" button in the "Guest Check-In" section is clicked, show the modal
-          checkInButton2.addEventListener('click', (event) => {
-              event.preventDefault(); // Prevent the default form submission
-              showModal();
-          });
-      });
+          // guestcheckin.addEventListener('click', (event) => {
+      //         event.preventDefault(); // Prevent the default form submission
+      //         showModal();
+      //     });
+      // });
+      console.log('{{message | safe }}')
+      var msg = '{{message | safe}}';
+      if (msg != ''){
+        if (msg == 'login_failed'){
+          document.getElementById('myModal').innerHTML = "Invalid username or password";
+        }
+        else if (msg == 'already_checkedin'){
+
+        }
+        else{
+          document.getElementById('myModal').innerHTML = msg;
+        }
+        document.getElementById('myModal').style.display = 'flex';
+        setTimeout(()=>{
+          document.getElementById('myModal').style.display = 'none';
+        },5000
+        );
+      }
+      
   </script>
 
   <!-- Link to Bootstrap JS and any other JS files you may have -->
