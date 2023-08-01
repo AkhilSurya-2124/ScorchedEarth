@@ -89,6 +89,7 @@ def insert_def(*args,**kwargs):
         
         db.session.add(DAILY_SUMMARY(date = datetime.today()))
         db.session.add(SLOTS(date = datetime.today()))
+        db.session.add(ADMIN(user_name='admin',password = 'admin123'))
         db.session.commit()
         # GUEST.query.filter(GUEST.guest_id == 1000).delete()
         # db.session.commit()
@@ -120,6 +121,7 @@ def daily_summary():
     i_hourly_price = DAILY_SUMMARY.query.filter_by(date == date.today()).hourly_price
     new_day = DAILY_SUMMARY(available_slots = i_available_slots,hourly_price = i_hourly_price)
     db.add(new_day)
+    
     db.session.commit()
 
 
@@ -397,6 +399,8 @@ def adminlogin():
         else:
             admin_inf = request.form
             db_inf = ADMIN.query.filter_by(user_name = admin_inf['username']).first()
+            print(admi_inf['password'])
+            print(db_inf)
             if db_inf and admin_inf['password'] == db_inf.password :
                 llogin_admin(db_inf)
                 return redirect(url_for('adminDashboard'))
