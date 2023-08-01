@@ -83,7 +83,7 @@
         <div class="row col-md-12 col-sm-12" id="container_1">
                         <h3 id="userloginHeading" style="height: 100%;">Check Out</h3>
 
-                        <form action="/clock">
+                        <form action="/checkout" method="post">
                           <label for="parkingId" style="display: flex;flex-direction: column;">Parking Id / Username
                               
                                 <input type="text"  id="parkingId" name="parkingId" placeholder="Parking Id">
@@ -141,7 +141,19 @@
           document.getElementById('myModal').innerHTML = "Invalid username or password";
         }
         else if (msg == 'already_checkedin'){
-
+          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest already clocked-in";
+        }
+        else if (msg == 'invalid_username'){
+          document.getElementById('myModal').innerHTML = "Invalid Username : Please try again";
+        }
+        else if (msg == 'parking_id_not_found'){
+          document.getElementById('myModal').innerHTML = "Parkin ID not found : Please try again";
+        }
+        else if (msg == 'not_clocked_in'){
+          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest not checked-in";
+        }
+        else if (msg == 'already_clocked_in'){
+          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest already clocked-in";
         }
         else{
           document.getElementById('myModal').innerHTML = msg;

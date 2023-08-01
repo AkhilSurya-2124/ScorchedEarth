@@ -1,11 +1,11 @@
 from flask import Flask,render_template, request,redirect,url_for,flash,get_flashed_messages,session
 from functools import wraps
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask_sqlalchemy import SQLAlchemy,event
+from flask_sqlalchemy import SQLAlchemy,event #using middle parties will decrease flexibility   
 from os import path
-from sqlalchemy import func
+from sqlalchemy import func,desc
 from datetime import datetime,date,timedelta
-
+from math import ceil,floor
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'FUSRODAH'
@@ -19,7 +19,7 @@ print(db.session.autoflush)
 class USERS(db.Model):
     user_name = db.Column(db.String(30),primary_key=True)
     password = db.Column(db.String(50), nullable = False)
-    wallet_balance = db.Column(db.Integer,server_default = '0')
+    wallet_balance = db.Column(db.Integer,server_default = '50')
     membership = db.Column(db.Integer,default = 0)
     membership_start = db.Column(db.Date)
     membership_end = db.Column(db.Date)
@@ -32,16 +32,19 @@ class ADMIN(db.Model):
     password = db.Column(db.String(50),nullable=False)
 
 
+
+
 class TIME(db.Model):
-    sl_no = db.Column(db.Integer,autoincrement=True,primary_key=True)
-    date = db.Column(db.Date,server_default = datetime.today().strftime('%Y-%m-%d'))
-    #for groupby in daily sumary
-    time = db.Column(db.DateTime,server_default = datetime.today().strftime('%H:%M'))
+    
+    # parking_id = db.Column(db.Integer,primary_key=True)
+    parking_id = db.Column(db.Integer,primary_key=True)
+    date = db.Column(db.Date,server_default = f'{date.today()}')#for groupby in daily sumary
+    # time = db.Column(db.DateTime,server_default = datetime.today().strftime('%H:%M'))
     #need to convert guest_id to int, so it can be stored in the same column as 
     # a logged-in user and also auto increment
-    parking_id = db.Column(db.String(30),nullable=True)
+    parker = db.Column(db.String(20),server_default = 'guest')
     vehicle_number = db.Column(db.String(10))
-    start_time = db.Column(db.DateTime,server_default = str(datetime.now()))
+    checkin_time = db.Column(db.DateTime,server_default = str(datetime.now()))
     checkout_time = db.Column(db.DateTime)
     amount_paid = db.Column(db.Integer,server_default = '0')
     membership = db.Column(db.Integer,server_default = '0')
@@ -51,11 +54,12 @@ class TIME(db.Model):
 
 
 class GUEST(db.Model):
-    guest_id = db.Column(db.Integer, autoincrement=True,primary_key=True)
+    guest_id = db.Column(db.Integer, autoincrement=True,primary_key=True,server_default = '1000')
     vehicle_number = db.Column(db.String(10),nullable=False)
     #is vehicle number necessary? -> i think yes
-    start_time = db.Column(db.DateTime,server_default=str(datetime.now()))
-    clock_out_time = db.Column(db.DateTime)
+    checkin_time = db.Column(db.DateTime,server_default=str(datetime.now()))
+    clockout_time = db.Column(db.DateTime)
+    # amount_paid = db.Column(db.Integer,server_default = '0') # not necessary?
 
 class DAILY_SUMMARY(db.Model):
     # __tablename__ = 'DAILY_SUMMARY'
@@ -82,9 +86,12 @@ class SLOTS(db.Model):
 def insert_def(*args,**kwargs):
         print('orreeeee')
         # db.session.add(DAILY_SUMMARY(date))
+        
         db.session.add(DAILY_SUMMARY(date = datetime.today()))
         db.session.add(SLOTS(date = datetime.today()))
         db.session.commit()
+        # GUEST.query.filter(GUEST.guest_id == 1000).delete()
+        # db.session.commit()
 db.create_all()
 # if not path.exists('theAllKnowing.sqlite'):
 #     db.create_all()
@@ -176,9 +183,11 @@ def usercheckin():
             return gohome()
         print('good checkin')
         flash(f'Hey there {user_db.user_name[0]}, your check-in time is {datetime.now().hour}:{datetime.now().minute}')
+
         #to-do include membership condition-> should i just do it myself?, in backend we can just
         #verify the condition at backend and calculated the price
-        checkin = TIME(parking_id = user_db.user_name)
+        checkin = TIME(parker = user_db.user_name)
+        user_db.parking_status = 1
         db.session.add(checkin)
         db.session.commit()
         return gohome()
@@ -218,12 +227,12 @@ def userlogin():
             llogin_user(user_db)
             return redirect(url_for('dashboard'))
         flash('login_failed')
-        return gohome()
+        return redirect(url_for('userlogin'))
     else:
         # print('user' in session and session['usertype'] == 'user')
         if 'user' in session and session['usertype'] == 'user':
            return redirect(url_for('dashboard'))
-        return render_template('userlogin.html')
+        return render_template('userlogin.html',message = get_flashed_messages())
 
 @app.route('/dashboard')
 @user_login_required
@@ -232,8 +241,8 @@ def dashboard():
     to_show.password = "you cant see this lol"
     membership_status = to_show.membership
     slots = SLOTS.query.filter_by(date = datetime.today().strftime('%Y-%m-%d')).first().available_slots
-    # if not slots:
-    #     slots = 'not working'
+    
+        
     return render_template('user_dashboard.html',slots = slots,user_data = to_show,flashes = get_flashed_messages())
 #to do -> display content -> don
     #flashes will be a list of strings, need to show them in appropriately using js
@@ -268,7 +277,7 @@ def reserve():
     # db.session.execute(USERS.__table__.update().where(USERS.user_name == session['user']).values(parking_status=True))
     #imp
     USERS.update().where(USERS.user_name == session['user']).values(parking_status=True)
-    checkin= TIME(parking_id = session['user'],start_time= request.form['checkintime'])
+    checkin= TIME(parking_id = session['user'],checkin_time= request.form['checkintime'])
     db.session.add(checkin)
     db.session.commit()
     flash('spot_reserved')
@@ -288,9 +297,8 @@ def subscribe():
 #######################
 #user functs --- to quickly fetch stats to display in the user dashboard
 @app.route('/fetchAvailableSlots',methods = ['POST'])
-@user_login_required
 def fetchAvailableSlots():
-    return SLOTS.query.filter_by(date = datetime.today().strftime('%Y-%m-%d')).first().available_slots
+    return SLOTS.query.filter_by(date = date.today()).first().available_slots
 
 @app.route('/fetchWalletBalance',methods = ['POST'])
 @user_login_required
@@ -309,6 +317,8 @@ def guestcheckin():
     parking_id = GUEST.query.filter_by(vehicle_number = request.form['vehiclenumber']).first().guest_id
     # parking_id = parking_id.guest_id
     checkin = TIME(parking_id = str(parking_id),vehicle_number = request.form['vehiclenumber'])
+    slots = SLOTS.query.filter_by(date = date.today() ).first()
+    slots.available_slots -= 1
     db.session.add(checkin)
     db.session.commit()
     flash(f'Your parking id is {parking_id}, please use it to CHECKOUT')
@@ -379,18 +389,84 @@ def logout():
 
 @app.route('/adminlogin',methods=['POST','GET'])
 def adminlogin():
-    return gohome()
-
+    if 'user' in session:
+        return gohome()
+    else:
+        if request.method == 'GET':
+            return render_template('adminlogin.html',messages = get_flashed_messages())
+        else:
+            admin_inf = request.form
+            db_inf = ADMIN.query.filter_by(user_name = admin_inf['username']).first()
+            if db_inf and admin_inf['password'] == db_inf.password :
+                llogin_admin(db_inf)
+                return redirect(url_for('adminDashboard'))
+            flash('invalid username / password')
+            return redirect(url_for('adminlogin'))
 @app.route('/adminDashboard',methods=['GET'])
 @admin_login_required
 def adminDashboard():
     return render_template('admin_dashboard.html',user_data=session['user_data'])
 
-# @app.route('/checkout',methods=['POST'])
-# def checkout():
-#     if user is not checked in display flash 
-#         else checkin 
-#     if request
+@app.route('/checkout',methods=['POST'])
+def checkout():
+    #checkout time, calc the price, increase availableslots
+    #see if user exists
+    if request.form['parkingId'].isnumeric():
+        #guest 
+        hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
+        guest = GUEST.query.filter_by(guest_id = int(request.form['parkingId'])).first()
+        print(guest.clockout_time)
+        if guest:
+            if not guest.clockout_time == None:
+                flash('not_clocked_in')
+                return gohome()
+            slots = SLOTS.query.filter_by(date = date.today()).first()
+            slots.available_slots += 1
+            time = TIME.query.filter_by(vehicle_number = guest.vehicle_number).order_by(desc( TIME.checkin_time )).first()
+            print('###########################')
+            to_charge = ceil((datetime.now() - time.checkin_time).seconds /60 /60) * hourlyprice
+            if to_charge < hourlyprice:
+                to_charge = hourlyprice
+            guest.clockout_time = datetime.now()
+            # guest.amount_paid = to_charge
+            # TIME.update().where(TIME.parking_id == guest.guest_id).values(amount_paid = to_charge,clockout_time = guest.clockout_time)
+            time.amount_paid = to_charge
+            time.clockout_time = guest.clockout_time
+            db.session.commit()
+            flash(f'Successfully Clocked Out')
+            return gohome()
+        else:
+            flash('parking_id_not_found')
+            return gohome()
+    else:
+        #user -> if member, do not charge
+        user = USERS.query.filter_by(user_name = request.form['parkingId']).first()
+        if user:
+            hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
+            if not user.parking_status :
+                flash('not_clocked_in')
+                return gohome()
+            time = TIME.query.filter_by(parker = request.form['parkingId']).order_by(desc( TIME.checkin_time )).first()
+            to_charge = 0
+            time.checkout_time = datetime.now()
+            if user.membership == 0:
+                slots = SLOTS.query.filter_by(date = date.today()).first()
+                slots.available_slots += 1
+                to_charge = ceil((datetime.now() - time.checkin_time).seconds/60/60) * hourlyprice
+                
+                if to_charge < hourlyprice:
+                    to_charge = hourlyprice
+                
+            
+            user.parking_status = 0   
+            time.amount_paid = to_charge
+            db.session.commit()
+            flash(f"{user.user_name} successfully checked-out at {datetime.now().strftime('%H:%m')}")
+            return gohome()
+        else:
+            flash('invalid_username')
+            return gohome()
+
     
 
 @app.errorhandler(404)  
