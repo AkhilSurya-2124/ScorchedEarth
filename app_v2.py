@@ -399,7 +399,7 @@ def adminlogin():
         else:
             admin_inf = request.form
             db_inf = ADMIN.query.filter_by(user_name = admin_inf['username']).first()
-            print(admi_inf['password'])
+            print(admin_inf['password'])
             print(db_inf)
             if db_inf and admin_inf['password'] == db_inf.password :
                 llogin_admin(db_inf)
