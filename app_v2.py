@@ -42,8 +42,9 @@ class TIME(db.Model):
     parking_id = db.Column(db.String(30),nullable=True)
     vehicle_number = db.Column(db.String(10))
     start_time = db.Column(db.DateTime,server_default = str(datetime.now()))
-    clock_out_time = db.Column(db.DateTime)
+    checkout_time = db.Column(db.DateTime)
     amount_paid = db.Column(db.Integer,server_default = '0')
+    membership = db.Column(db.Integer,server_default = '0')
     # slots_available = db.Column(db.Integer,default = '10')
 #imp - where shoud i store number of slotssdsf
 
@@ -56,17 +57,20 @@ class GUEST(db.Model):
     start_time = db.Column(db.DateTime,server_default=str(datetime.now()))
     clock_out_time = db.Column(db.DateTime)
 
-class DAY(db.Model):
-    # __tablename__ = 'DAY'
+class DAILY_SUMMARY(db.Model):
+    # __tablename__ = 'DAILY_SUMMARY'
     #we store the summary here
     date = db.Column(db.Date,primary_key = True,server_default = str(date.today()))
-    slots = db.Column(db.Integer,default = 10)
+    total_slots = db.Column(db.Integer,default = 10)
+    available_slots = db.Column(db.Integer,server_default = '0')
     total_parkers = db.Column(db.Integer,server_default = '0')
-    hourly_price = db.Column(db.Integer,server_default = '0')
+    hourly_price = db.Column(db.Integer,server_default = '10')
     total_amount = db.Column(db.Integer,server_default = '0')
+    member_count = db.Column(db.Integer,server_default = '0')
+    non_member_count = db.Column(db.Integer,server_default = '0')
 
 class SLOTS(db.Model):
-    # __tablename__ = 'DAY'
+    # __tablename__ = 'DAILY_SUMMARY'
     #we store the summary here
     date = db.Column(db.Date,primary_key = True,server_default = str(date.today()))
     total_slots = db.Column(db.Integer, server_default = '10')
@@ -77,8 +81,8 @@ class SLOTS(db.Model):
 @event.listens_for(SLOTS.__table__,'after_create')
 def insert_def(*args,**kwargs):
         print('orreeeee')
-        # db.session.add(DAY(date))
-        db.session.add(DAY(date = datetime.today()))
+        # db.session.add(DAILY_SUMMARY(date))
+        db.session.add(DAILY_SUMMARY(date = datetime.today()))
         db.session.add(SLOTS(date = datetime.today()))
         db.session.commit()
 db.create_all()
@@ -86,7 +90,7 @@ db.create_all()
 #     db.create_all()
     
 #     print('lmao')
-#     db.session.add(DAY(date = datetime.today()))
+#     db.session.add(DAILY_SUMMARY(date = datetime.today()))
 #     #primary key with default value is not working, idk why
 #     db.session.flush()
 #     db.session.commit()
@@ -96,16 +100,20 @@ db.create_all()
 #     db.session.commit()
     
 def daily_summary():
-    total_amount_paid = db.session.query(func.sum(TIME.amount_paid)).filter(TIME.date == date.today()).scalar()
-    if total_amount_paid is None:
-        total_amount_paid = 0
-    member_count = db.session.query(func.count()).filter(TIME.membership == 1).scalar()
-    nonmember_count = db.session.query(func.count()).filter(TIME.membership == 0).scalar()
-
-
-
-    
-
+    i_total_amount_paid = db.session.query(func.sum(TIME.amount_paid)).filter(TIME.date == date.today()).scalar()
+    if i_total_amount_paid is None:
+        i_total_amount_paid = 0
+    i_member_count = db.session.query(func.count()).filter(TIME.membership == 1).scalar()
+    i_nonmember_count = db.session.query(func.count()).filter(TIME.membership == 0).scalar()
+    i_total_parkers = i_member_count + i_nonmember_count
+    i_total_checkouts = TIME.query.filter_by(checkout_time = date.today()).count()
+    i_available_slots = SLOTS.query.filter_by(date = date.today()).available_slots
+    DAILY_SUMMARY.update().where(DAILY_SUMMARY.date == date.today()).values(available_slots = i_available_slots,total_parkers =i_total_parkers,total_amount =i_total_amount_paid,member_count = i_member_count,non_member_count = i_member_count)
+    db.session.commit()
+    i_hourly_price = DAILY_SUMMARY.query.filter_by(date == date.today()).hourly_price
+    new_day = DAILY_SUMMARY(available_slots = i_available_slots,hourly_price = i_hourly_price)
+    db.add(new_day)
+    db.session.commit()
 
 
     
@@ -145,7 +153,8 @@ def llogout_user():
 def gohome():
     return redirect(url_for('index'))
 
-
+#to do : exception and invalid input handling -> not done
+# set path for invalid get endpoints -> done
 @app.route('/')
 def index():
     msg = get_flashed_messages()
@@ -254,7 +263,7 @@ def reserve():
     #users will only see the reserve button if there are spots available...
     # db.session.execute(USERS.__table__.update().where(USERS.user_name == session['user']).values(parking_status=True))
     #imp
-    USERS.__table__.update().where(USERS.user_name == session['user']).values(parking_status=True)
+    USERS.update().where(USERS.user_name == session['user']).values(parking_status=True)
     checkin= TIME(parking_id = session['user'],start_time= request.form['checkintime'])
     db.session.add(checkin)
     db.session.commit()
@@ -335,7 +344,7 @@ def updateUserPassword():
 @admin_login_required
 def changeHourlyPrice():
     if request.method == 'POST':
-        DAY.__table__.update().where(DAY.date == datetime.today()).values(hourly_price=request.form['hourlyprice'])
+        DAILY_SUMMARY.__table__.update().where(DAILY_SUMMARY.date == datetime.today()).values(hourly_price=request.form['hourlyprice'])
         db.session.commit()
         flash('price_changed')
     return render_template('changeHourlyPrice.html',message = get_flashed_messages())
@@ -379,11 +388,14 @@ def adminDashboard():
 def error404(e):
     return render_template('404.html'),404
 
+@app.errorhandler(405)
+def error405(e):
+    return render_template('405.html'),405
 
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func = daily_summary, trigger='cron', hour = 13, minute = 39 )  
+    scheduler.add_job(func = daily_summary, trigger='cron', hour = 23, minute = 58 )  
     # scheduler.add_job(func = notify_admin,trigger = 'interval',seconds = 60)
     scheduler.start()
 
