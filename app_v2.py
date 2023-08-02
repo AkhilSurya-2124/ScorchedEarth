@@ -37,14 +37,14 @@ class ADMIN(db.Model):
 class TIME(db.Model):
     
     # parking_id = db.Column(db.Integer,primary_key=True)
-    parking_id = db.Column(db.Integer,primary_key=True)
-    date = db.Column(db.Date,server_default = f'{date.today()}')#for groupby in daily sumary
+    parking_id = db.Column(db.Integer,primary_key=True,autoincrement = True)
+    date = db.Column(db.Date)#for groupby in daily sumary
     # time = db.Column(db.DateTime,server_default = datetime.today().strftime('%H:%M'))
     #need to convert guest_id to int, so it can be stored in the same column as 
     # a logged-in user and also auto increment
     parker = db.Column(db.String(20),server_default = 'guest')
     vehicle_number = db.Column(db.String(10))
-    checkin_time = db.Column(db.DateTime,server_default = str(datetime.now()))
+    checkin_time = db.Column(db.DateTime)
     checkout_time = db.Column(db.DateTime)
     amount_paid = db.Column(db.Integer,server_default = '0')
     membership = db.Column(db.Integer,server_default = '0')
@@ -53,18 +53,18 @@ class TIME(db.Model):
 
 
 
-class GUEST(db.Model):
-    guest_id = db.Column(db.Integer, autoincrement=True,primary_key=True,server_default = '1000')
-    vehicle_number = db.Column(db.String(10),nullable=False)
-    #is vehicle number necessary? -> i think yes
-    checkin_time = db.Column(db.DateTime,server_default=str(datetime.now()))
-    clockout_time = db.Column(db.DateTime)
-    # amount_paid = db.Column(db.Integer,server_default = '0') # not necessary?
+# class GUEST(db.Model):
+#     guest_id = db.Column(db.Integer, autoincrement=True,primary_key=True,server_default = '1000')
+#     vehicle_number = db.Column(db.String(10),nullable=False)
+#     #is vehicle number necessary? -> i think yes
+#     checkin_time = db.Column(db.DateTime,server_default=str(datetime.now()))
+#     checkout_time = db.Column(db.DateTime)
+#     # amount_paid = db.Column(db.Integer,server_default = '0') # not necessary?
 
 class DAILY_SUMMARY(db.Model):
     # __tablename__ = 'DAILY_SUMMARY'
     #we store the summary here
-    date = db.Column(db.Date,primary_key = True,server_default = str(date.today()))
+    date = db.Column(db.Date,primary_key = True)
     total_slots = db.Column(db.Integer,default = 10)
     available_slots = db.Column(db.Integer,server_default = '0')
     total_parkers = db.Column(db.Integer,server_default = '0')
@@ -76,7 +76,7 @@ class DAILY_SUMMARY(db.Model):
 class SLOTS(db.Model):
     # __tablename__ = 'DAILY_SUMMARY'
     #we store the summary here
-    date = db.Column(db.Date,primary_key = True,server_default = str(date.today()))
+    date = db.Column(db.Date,primary_key = True)
     total_slots = db.Column(db.Integer, server_default = '10')
     available_slots = db.Column(db.Integer,server_default = '10')
 
@@ -203,7 +203,7 @@ def usercheckin():
 
         #to-do include membership condition-> should i just do it myself?, in backend we can just
         #verify the condition at backend and calculated the price
-        checkin = TIME(parker = user_db.user_name)
+        checkin = TIME(parker = user_db.user_name,checkin_time = datetime.now())
         user_db.parking_status = 1
         db.session.add(checkin)
         db.session.commit()
@@ -336,17 +336,25 @@ def fetchWalletBalance():
 @app.route('/guestcheckin',methods=['POST'])
 def guestcheckin():
     #imp goto line 51
-    guest = GUEST(vehicle_number = request.form['vehiclenumber'])
+    v_number = request.form['vehiclenumber']
+    
+    guest = TIME.query.filter_by(vehicle_number = v_number).order_by(desc(TIME.checkin_time)).first()
+    if guest:
+        print(guest.parking_id)
+    if guest and (not guest.checkout_time):
+        flash('already_checkedin') 
+        return gohome()
+    guest = TIME(vehicle_number = v_number,checkin_time = datetime.now(),date = date.today())
     db.session.add(guest)
     db.session.commit()
-    parking_id = GUEST.query.filter_by(vehicle_number = request.form['vehiclenumber']).first().guest_id
+    
     # parking_id = parking_id.guest_id
-    checkin = TIME(parking_id = str(parking_id),vehicle_number = request.form['vehiclenumber'])
+    
     slots = SLOTS.query.filter_by(date = date.today() ).first()
     slots.available_slots -= 1
-    db.session.add(checkin)
     db.session.commit()
-    flash(f'Your parking id is {parking_id}, please use it to CHECKOUT')
+    guest = TIME.query.filter_by(vehicle_number = v_number).order_by(desc(TIME.checkin_time)).first()
+    flash(f'Your parking id is {guest.parking_id}, please use it to CHECKOUT')
     return gohome()
 #########################################################
 
@@ -359,10 +367,14 @@ def guestcheckin():
 def addUser():
     if request.method == 'POST':
         user = request.form
-        to_add = USERS(user_name = user['username'],password = user['password'],vehicle_number = user['vehiclenumber'])
+        
+        to_add = USERS(user_name = user['username'],password = user['password'],vehicle_number = user['vehiclenumber'],wallet_balance = user['wallet'])
         db.session.add(to_add)
         db.sesison.commit()
-    return 
+        flash('User Successfully Added')
+    else:
+        return 2
+
 
 @app.route('/updateUserPassword',methods=['POST','GET'])
 @admin_login_required
@@ -448,24 +460,24 @@ def checkout():
     if request.form['parkingId'].isnumeric():
         #guest 
         hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
-        guest = GUEST.query.filter_by(guest_id = int(request.form['parkingId'])).first()
-        print(guest.clockout_time)
+        guest = TIME.query.filter_by(parking_id = int(request.form['parkingId'])).first()
+        
         if guest:
-            if not guest.clockout_time == None:
+            if not guest.checkout_time == None:
                 flash('not_clocked_in')
                 return gohome()
             slots = SLOTS.query.filter_by(date = date.today()).first()
             slots.available_slots += 1
-            time = TIME.query.filter_by(vehicle_number = guest.vehicle_number).order_by(desc( TIME.checkin_time )).first()
+            # time = TIME.query.filter_by(vehicle_number = guest.vehicle_number).order_by(desc( TIME.checkin_time )).first()
             print('###########################')
-            to_charge = ceil((datetime.now() - time.checkin_time).seconds /60 /60) * hourlyprice
+            to_charge = ceil((datetime.now() - guest.checkin_time).seconds /60 /60) * hourlyprice
             if to_charge < hourlyprice:
                 to_charge = hourlyprice
-            guest.clockout_time = datetime.now()
+            guest.checkout_time = datetime.now()
             # guest.amount_paid = to_charge
-            # TIME.update().where(TIME.parking_id == guest.guest_id).values(amount_paid = to_charge,clockout_time = guest.clockout_time)
-            time.amount_paid = to_charge
-            time.clockout_time = guest.clockout_time
+            # TIME.update().where(TIME.parking_id == guest.guest_id).values(amount_paid = to_charge,checkout_time = guest.checkout_time)
+            guest.amount_paid = to_charge
+            guest.checkout_time = guest.checkout_time
             db.session.commit()
             flash(f'Successfully Clocked Out')
             return gohome()
