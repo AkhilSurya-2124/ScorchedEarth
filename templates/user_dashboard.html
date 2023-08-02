@@ -68,7 +68,7 @@
                                     <input type="time" class="form-control" name="reservetime" />
                                 </div>
                                 <div class="text-center">
-                                    <button class="btn btn-success mr-2" >Reserve</button>
+                                    <button class="btn btn-success mr-2" id="reserve">Reserve</button>
                                 </div>
                               </form>
                            
@@ -168,6 +168,23 @@
         // let membership_status = "{{membership_status | safe}}";
         var c = '{{costs | tojson | safe}}';
         c = JSON.parse(c);
+
+      //code for disable reserve button added on aug 1 09:35 pm
+
+        const reserve = document.getElementById("reserve");
+
+        function greyOutCheckIn() {
+            reserve.disabled = true;
+  reserve.style.backgroundColor = "grey";
+  reserve.style.cursor = "not-allowed";
+}
+
+// Function to enable the check-in button
+function enableCheckIn() {
+    reserve.disabled = false;
+  reserve.style.backgroundColor = "green";
+  reserve.style.cursor = "pointer";
+}
         
         
         if ('{{user_data.membership | safe}}' == '1'){
@@ -178,9 +195,16 @@
             else{
                 document.getElementById('membership_status').innerHTML = "Inactive";
             }
+
+            //code for disable reserve button added on aug 1 09:35 pm
           if ('{{slots | safe}}' == 0){
-            // disable reserve a spot -> grey out @todo
-          }
+console.log("comming in side the slotssssss")
+            greyOutCheckIn();
+                  }
+                  else{
+                    enableCheckIn();
+
+                  }
         var radios = document.getElementsByName('duration');
         for(let radio of radios){
           radio.addEventListener("change",()=>{
