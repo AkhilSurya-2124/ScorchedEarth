@@ -11,7 +11,7 @@
 </head>
 <body>
   {% include 'nav.html' %}
-      <div  class="container mt-1">
+      <div  class="container mt-3">
         <div class="row ">
             <div class="col-md-4 col-sm-12 mb-4 ">
                 <div class="p-4 " id="container_1">
@@ -47,14 +47,33 @@
                   </div>
             </div>
           <div class="col-md-4 col-sm-12 mb-4">
-            <div   id="myModal">
-                                <p></p>
+
+            <div class="p-4 " id="container_2">
+                <div class="col-md-12">
+                    <!-- Wallet Balance Card -->
+                    <div class="card">
+                        <div class="card-header">
+                       <h5>Available Parking Slots</h5> 
+                        </div>
+                        <div class="card-body">
+                            <!-- Display the wallet balance here -->
+                            <!-- <h3 class="text-center" id="occupancy">{{slots | safe}}</h3> -->
+                            <h3 class="text-center" id="occupancy">Hardcoded</h3>
+
+                            <!-- Add buttons for deposit and withdrawal -->
+                           
+                        </div>
+                    </div>
+          </div>
+          </div>
+            <div class="mt-4"  id="myModal">
+                                <b></b>
               
           </div>
           </div>
             
             <div class="col-md-4 col-sm-12 mb-4 ">
-                <div class="p-4 " id="container_2">
+                <div class="p-4 " id="container_3">
                 <form action="/guestcheckin" method="post">
                     <h3 id="userloginHeading">Guest Check-In</h3>
                     <div class="form-group">

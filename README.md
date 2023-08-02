@@ -36,3 +36,6 @@ DO THE BELOW ASAP
 signup bonus of 50 for new users-> done
 
 pre park and create some rows in each table while submitting
+
+Issues:
+on click of checkin straight away without giving the vehicle number in guest login -- This has to be handled
