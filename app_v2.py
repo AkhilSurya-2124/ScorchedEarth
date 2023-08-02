@@ -80,9 +80,11 @@ class SLOTS(db.Model):
     total_slots = db.Column(db.Integer, server_default = '10')
     available_slots = db.Column(db.Integer,server_default = '10')
 
+class SUBSCRIPTION(db.Model):
+    duration_in_days = db.Column(db.Integer,primary_key=True)
+    cost =db.Column(db.Integer)
 
-
-@event.listens_for(SLOTS.__table__,'after_create')
+@event.listens_for(SUBSCRIPTION.__table__,'after_create')
 def insert_def(*args,**kwargs):
         print('orreeeee')
         # db.session.add(DAILY_SUMMARY(date))
@@ -90,6 +92,10 @@ def insert_def(*args,**kwargs):
         db.session.add(DAILY_SUMMARY(date = datetime.today()))
         db.session.add(SLOTS(date = datetime.today()))
         db.session.add(ADMIN(user_name='admin',password = 'admin123'))
+        db.session.add(SUBSCRIPTION(duration_in_days = 28,cost = 200))
+        db.session.add(SUBSCRIPTION(duration_in_days = 84,cost = 580))
+        db.session.add(SUBSCRIPTION(duration_in_days = 168,cost = 1100))
+        db.session.add(SUBSCRIPTION(duration_in_days = 356,cost = 2000))
         db.session.commit()
         # GUEST.query.filter(GUEST.guest_id == 1000).delete()
         # db.session.commit()
@@ -116,7 +122,7 @@ def daily_summary():
     i_total_parkers = i_member_count + i_nonmember_count
     i_total_checkouts = TIME.query.filter_by(checkout_time = date.today()).count()
     i_available_slots = SLOTS.query.filter_by(date = date.today()).available_slots
-    DAILY_SUMMARY.update().where(DAILY_SUMMARY.date == date.today()).values(available_slots = i_available_slots,total_parkers =i_total_parkers,total_amount =i_total_amount_paid,member_count = i_member_count,non_member_count = i_member_count)
+    DAILY_SUMMARY.query.filter_by(date = date.today()).update({'available_slots' : i_available_slots,'total_parkers' :i_total_parkers,'total_amount' : i_total_amount_paid,'member_count' : i_member_count,'non_member_count' : i_member_count})
     db.session.commit()
     i_hourly_price = DAILY_SUMMARY.query.filter_by(date == date.today()).hourly_price
     new_day = DAILY_SUMMARY(available_slots = i_available_slots,hourly_price = i_hourly_price)
@@ -125,6 +131,14 @@ def daily_summary():
     db.session.commit()
 
 
+def login_required(func):
+    @wraps(func)
+    #we should always declare a function or class after a decorator...
+    def fun(*args,**kwargs):
+        if "user" in session :
+            return func(*args,**kwargs)
+        return redirect(url_for('index'))
+    return fun
 
 def user_login_required(func):
     @wraps(func)
@@ -151,12 +165,13 @@ def llogin_user(user):
 def llogin_admin(admin):
     session['user']=admin.user_name
     # session['user_data'] = {column.name: getattr(admin, column.name) for column in admin.__table__.columns}
-    session['admin']='admin'
+    session['usertype']='admin'
     session['is_authenticated']=1
 
 def llogout_user():
     session.clear()
     session['is_authenticated']=0
+    
 
 
 def gohome():
@@ -170,7 +185,7 @@ def index():
     if 'is_authenticated' in session and session['is_authenticated'] == 1:
         if session['usertype']== 'user':
             return redirect(url_for('dashboard'))
-        return redirect(url_for('admindashboard'))
+        return redirect(url_for('adminDashboard'))
     if msg:
         return render_template('index.html',message = msg[0])
     return render_template('index.html')
@@ -243,9 +258,14 @@ def dashboard():
     to_show.password = "you cant see this lol"
     membership_status = to_show.membership
     slots = SLOTS.query.filter_by(date = datetime.today().strftime('%Y-%m-%d')).first().available_slots
-    
+    costs = SUBSCRIPTION.query.all()
+    dic ={}
+    for row in costs:
+        dic[row.duration_in_days] = row.cost
+        # print(dic[row.duration_in_days])
+    # costs = {i:j for i,j in costs}
         
-    return render_template('user_dashboard.html',slots = slots,user_data = to_show,flashes = get_flashed_messages())
+    return render_template('user_dashboard.html',slots = slots,user_data = to_show,flashes = get_flashed_messages(),costs = dic)
 #to do -> display content -> don
     #flashes will be a list of strings, need to show them in appropriately using js
 
@@ -278,7 +298,8 @@ def reserve():
     #users will only see the reserve button if there are spots available...
     # db.session.execute(USERS.__table__.update().where(USERS.user_name == session['user']).values(parking_status=True))
     #imp
-    USERS.update().where(USERS.user_name == session['user']).values(parking_status=True)
+    USERS.query.filter_by(user_name = session['user']).update({'parking_status':True})
+    
     checkin= TIME(parking_id = session['user'],checkin_time= request.form['checkintime'])
     db.session.add(checkin)
     db.session.commit()
@@ -289,10 +310,12 @@ def reserve():
 @user_login_required
 def subscribe():
     #to handle, add the durratioon of membership to start date
-    USERS.__table__.update().where(USERS.user_name == session['user']).values(membership = True,membership_start = datetime.today(),membership_end = request.form['membership_end_day'])
-    db.session.commit()
-    flash('subscribed')
-    return redirect(url_for('dashboard'))
+    if request.method == 'POST':
+        print("&&&&&&&&&&&&&&&&&&&"+request.form['duration'])
+        USERS.query.filter_by(user_name = session['user']).update({'membership' : 1,'membership_start' : date.today(),'membership_end' : date.today() + timedelta(days = int(request.form['duration']))})
+        db.session.commit()
+        flash('subscribed')
+        return redirect(url_for('dashboard'))
 #########################################################
 
 
@@ -360,7 +383,7 @@ def updateUserPassword():
 @admin_login_required
 def changeHourlyPrice():
     if request.method == 'POST':
-        DAILY_SUMMARY.__table__.update().where(DAILY_SUMMARY.date == datetime.today()).values(hourly_price=request.form['hourlyprice'])
+        DAILY_SUMMARY.query.filter_by(date = date.today()).update({'hourly_price':request.form['hourlyprice']})
         db.session.commit()
         flash('price_changed')
     return render_template('changeHourlyPrice.html',message = get_flashed_messages())
@@ -383,8 +406,15 @@ def showSummary():
 
 
 
+# @app.route('/logout')
+# @user_login_required
+# def logout():
+#     llogout_user()
+#     return gohome()
+
+
 @app.route('/logout')
-@user_login_required
+@login_required
 def logout():
     llogout_user()
     return gohome()
@@ -409,7 +439,7 @@ def adminlogin():
 @app.route('/adminDashboard',methods=['GET'])
 @admin_login_required
 def adminDashboard():
-    return render_template('admin_dashboard.html',user_data=session['user_data'])
+    return render_template('admindashboard.html')
 
 @app.route('/checkout',methods=['POST'])
 def checkout():

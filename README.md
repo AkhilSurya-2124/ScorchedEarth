@@ -13,6 +13,8 @@ backend:
     members get a guaranteed spot, so members cannot be more than the available slots.....
     dang need another endpoint now, should be public -> done
 
+
+    create a table to store subscription costs
     ARRANGE THE END POINTS SUCH THAT THEY ARE IN SOME KIND OF ORDER -> last priority
 
 frontend:
