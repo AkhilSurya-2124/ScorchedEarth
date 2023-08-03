@@ -5,91 +5,345 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='checkin.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0-alpha1/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    
     {% include 'nav_head.html' %}
-   
-   
+ 
+    
 </head>
-<body>
+<body >
   {% include 'nav.html' %}
-  <div  class="container mt-3">
-    <div class="row ">
-        <div class="col-md-3 col-sm-12 mb-4 ">
-            <div class="p-4 " id="admin_container_1">
-              <p>1111</p>
+<div  style="display: flex;" ;>
+  <!-- Main Content - 3/4th of the screen -->
+  <div class="" style="width: 75%;padding: 10px;padding-top: 10px !important;">
+    <div class="row">
+      <!-- Row 2 -->
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+              Monitor Daily Summary
+            </div>
+            <div class="card-body">
+ 
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Check-Out User1 </button>
+            </div>            
+          </div>
+        </div>
+            </div>
+      </div>
+
+                <!-- Modal -->
+                <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                  <div class="modal-dialog">
+                    <div class="modal-content" style="min-width: 800px;">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Monitor Daily Summary </h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                        <table class="table">
+                          <thead>
+                            <tr>
+                              <th>Column 1</th>
+                              <th>Column 2</th>
+                              <th>Column 3</th>
+                              <th>Column 4</th>
+                            </tr>
+                          </thead>
+                          <tbody id="tableBody">
+                            <!-- Table rows will be dynamically generated here -->
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+               History
+            </div>
+            <div class="card-body">
+              
+                
+                
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" form="adminAddCheckOut" type="submit">Check-Out User </button>
+            </div>            </div>
+        </div>
+            </div>
+            
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+               Check-Out User
+            </div>
+            <div class="card-body">
+                
+              <div class="form-group">
+                <form action="/adminAddCheckOut" id="adminAddCheckOut" method="post">
+                    <label for="userName">Parking Id / User Name</label>
+                    <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter Parking-Id">  
+                    </form>
+            </div>
+            
+                
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" form="adminAddCheckOut" type="submit">Check-Out User </button>
+            </div>
+                      </div>
+        </div>
+            </div>
+      </div>
+    </div>
+    <div class="row">
+      <!-- Row 1 -->
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+              Set Hourly Charges
+
+            </div>
+            <div class="card-body">
+                <!-- Display the wallet balance here -->
+                <h3 class="text-center" id="wallet">
+                  Set Hourly Charges
+
+                </h3>
+                
+                <!-- Add buttons for deposit and withdrawal -->
+                
+                    
+                    <div class="form-group">
+                        <form action="/addToWallet" id="addToWallet" method="post">
+                            <label for="addamount">Amount To Add </label>
+                            <input type="text" class="form-control" id="addamount" name="addtowallet" placeholder="Enter amount to be added">  
+                        </form>
+                    </div>
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" form="addToWallet" type="submit">Add to Wallet</button>
+            </div>
+            </div>
+        </div>
+            </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+             Update User Password          
               </div>
+            <div class="card-body">
+              <div class="form-group">
+                <form action="/adminUpdateUserPassword" id="adminUpdateUserPassword" method="post">
+                    <label for="userName">User Name </label>
+                    <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name">  
+                    <label for="password">Password </label>
+                    <input type="text" class="form-control" id="Password" name="Password" placeholder="Enter Password">  
+                    <label for="vehicleNo">Password </label>
+                    <input type="text" class="form-control" id="vehicleNo" name="vehicleNo" placeholder="Enter Vehicle Number">  
+                  </form>
+            </div>
+            
+                
+                
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" form="adminUpdateUserPassword" type="submit">Add User </button>
+            </div>            </div>
         </div>
-        <div class="col-md-3 col-sm-12 mb-4 ">
-          <div class="p-4 " id="admin_container_1">
-            <p>2222</p>
             </div>
       </div>
-        
-      <div class="col-md-3 col-sm-12 mb-4 ">
-        <div class="p-4 " id="admin_container_1">
-          <p>3333</p>
-          </div>
-    </div>
 
-    <div class="col-md-3 col-sm-12 mb-4 ">
-      <div class="p-4 " id="admin_container_1">
-        <p>4444</p>
-        </div>
-  </div>
-
-        
-    </div>
-    <div  class="container">
-
-    <div class="row" >
-      <div class="col-md-3 col-sm-12 mb-4 ">
-        <div class="p-4 " id="admin_container_1">
-          <p>5555</p>
-          </div>
-    </div>  
-    <div class="col-md-3 col-sm-12 mb-4 ">
-      <div class="p-4 " id="admin_container_1">
-        <p>6666</p>
-        </div>
-  </div>
-  <div class="col-md-3 col-sm-12 mb-4 ">
-    <div class="p-4 " id="admin_container_1">
-      <p>7777</p>
-      </div>
-</div>
-<div class="col-md-3 col-sm-12 mb-4 ">
-  <div class="p-4 " id="admin_container_1">
-    <p>8888</p>
-    </div>
-</div>        
-    </div>
-    </div>
-    <div  class="container">
-
-      <div class="row" >
-        <div class="col-md-3 col-sm-12 mb-4 ">
-          <div class="p-4 " id="admin_container_1">
-            <p>9999</p>
-            </div>
-      </div>  
-      <div class="col-md-3 col-sm-12 mb-4 ">
-        <div class="p-4 " id="admin_container_1">
-          <p>10 10 10 10</p>
-          </div>
-    </div>
-    <div class="col-md-3 col-sm-12 mb-4 ">
-      <div class="p-4 " id="admin_container_1">
-        <p>11 11 11 11</p>
-        </div>
-  </div>
-  <div class="col-md-3 col-sm-12 mb-4 ">
-    <div class="p-4 " id="admin_container_1">
-      <p>12 12 12 12</p>
-      </div>
-  </div>        
-      </div>
-      </div>
-</div> 
       
+    </div>
+
+
+
+    <div class="row">
+      <!-- Row 3 -->
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+               Check-In User
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <form action="/adminAddCheckIn" id="adminAddCheckIn" method="post">
+                    <label for="userName">User Name </label>
+                    <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name">  
+                    <label for="password">Password </label>
+                    <input type="text" class="form-control" id="Password" name="Password" placeholder="Enter Password">  
+                    </form>
+            </div>
+            
+                
+                
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" form="adminAddCheckIn" type="submit">Check-In User </button>
+            </div>            </div>
+        </div>
+            </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+               Add User
+            </div>
+            <div class="card-body">
+                                
+                    
+                    <div class="form-group">
+                        <form action="/adminAddUser" id="adminAddUser" method="post">
+                            <label for="userName">User Name </label>
+                            <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name">  
+                            <label for="password">Password </label>
+                            <input type="text" class="form-control" id="Password" name="Password" placeholder="Enter Password">  
+                            <label for="vehicleNo">Password </label>
+                            <input type="text" class="form-control" id="vehicleNo" name="vehicleNo" placeholder="Enter Vehicle Number">  
+                          </form>
+                    </div>
+                    
+            </div>
+            <div class="card-footer text-muted">
+              <div class="text-center">
+                <button class="btn btn-success mr-2" form="adminAddUser" type="submit">Add User </button>
+            </div>            </div>
+        </div>
+            </div>
+      </div>
+
+      <div class="col-md-4 mb-4">
+        <div class="p-4 " id="container_1">
+          <div class="card">
+            <div class="card-header">
+               My Wallet Balance
+            </div>
+            <div class="card-body">
+                <h3 class="text-center" id="wallet">
+                  balance
+                </h3>
+                
+                <!-- Add buttons for deposit and withdrawal -->
+                
+                    
+                    <div class="form-group">
+                        <form action="/addToWallet" id="addToWallet" method="post">
+                            <label for="addamount">Amount To Add </label>
+                            <input type="text" class="form-control" id="addamount" name="addtowallet" placeholder="Enter amount to be added">  
+                        </form>
+                    </div>
+                    <div class="text-center">
+                        <button class="btn btn-success mr-2" form="addToWallet" type="submit">Add to Wallet</button>
+                    </div>
+                
+                
+            </div>
+            <div class="card-footer text-muted">
+              2 days ago
+            </div>
+        </div>
+            </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <!-- Right-hand Notification - 1/4th of the screen -->
+  <div  style="background-color: #fff;width:25% ">
+    <!-- Your notification content goes here -->
+    <h4>Notification</h4>
+  </div>
+
+</div>
+
+
+<script>
+  // Function to populate the table with dynamic data
+  function populateTable() {
+    const tableBody = document.getElementById('tableBody');
+
+    // Replace this with actual data retrieval logic
+    const dummyData = [
+      { col1: 'Data 1-1', col2: 'Data 1-2', col3: 'Data 1-3', col4: 'Data 1-4' },
+      { col1: 'Data 2-1', col2: 'Data 2-2', col3: 'Data 2-3', col4: 'Data 2-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+
+      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
+
+      // Add more data as needed
+    ];
+
+    // Clear existing rows
+    tableBody.innerHTML = '';
+
+    // Add new rows based on data
+    dummyData.forEach(data => {
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td>${data.col1}</td>
+        <td>${data.col2}</td>
+        <td>${data.col3}</td>
+        <td>${data.col4}</td>
+      `;
+      tableBody.appendChild(newRow);
+    });
+  }
+
+  // Call the function when the modal is shown
+  $('#staticBackdrop').on('shown.bs.modal', function () {
+    populateTable();
+  });
+</script> 
 </body>
 </html>
 
