@@ -14,37 +14,42 @@
       <div  class="container mt-3">
         <div class="row ">
             <div class="col-md-4 col-sm-12 mb-4 ">
-                <div class="p-4 " id="container_1">
-                <form action="/usercheckin" method="post">
-                    <h3 id="userloginHeading">User Check-In</h3>
-                    <div class="form-group">
-                      <!-- redacted -->
-                      <!-- <label for="InputEmail1">Email address</label>
-                      <input type="email" class="form-control" id="InputEmail1" name="email" placeholder="Enter email"> -->
-                      <label for="username">User Name</label>
-                      <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
-                    </div>
-                    <div class="form-group">
-                      <label for="exampleInputPassword1">Password</label>
-                      <input type="password" name ="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-                    </div>
-                    <!-- redacted -->
-                    <!-- <div class="form-group">
-                        <label for="hours">Number of Hours</label>
-                        <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
-                    </div> 
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="memberCheck1">
-                      <label class="form-check-label" for="memberCheck1">Member ?</label>
-                    </div>
-                  -->
-                    <div class="d-flex justify-content-center"> <!-- Centering the button -->
-                        <button type="submit"class="btn btn-primary" id="usercheckin">Check-In</button>
+              <fieldset id="u_checkin">
+                
+              <div class="p-4 " id="container_1">
+                <form  action="/usercheckin" method="post">
+                    
+                      <h3 id="userloginHeading">User Check-In</h3>
+                      <div class="form-group">
+                        <!-- redacted -->
+                        <!-- <label for="InputEmail1">Email address</label>
+                        <input type="email" class="form-control" id="InputEmail1" name="email" placeholder="Enter email"> -->
+                        <label for="username">User Name</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
                       </div>
+                      <div class="form-group">
+                        <label for="exampleInputPassword1">Password</label>
+                        <input type="password" name ="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                      </div>
+                      <!-- redacted -->
+                      <!-- <div class="form-group">
+                          <label for="hours">Number of Hours</label>
+                          <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
+                      </div>
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="memberCheck1">
+                        <label class="form-check-label" for="memberCheck1">Member ?</label>
+                      </div>
+                                        -->
+                      <div class="d-flex justify-content-center"> <!-- Centering the button -->
+                          <button type="submit"class="btn btn-primary" >Check-In</button>
+                        </div>
                       
+                     
                   </form>
                  
                   </div>
+                  </fieldset>
             </div>
           <div class="col-md-4 col-sm-12 mb-4">
 
@@ -58,7 +63,8 @@
                         <div class="card-body">
                             <!-- Display the wallet balance here -->
                             <!-- <h3 class="text-center" id="occupancy">{{slots | safe}}</h3> -->
-                            <h3 class="text-center" id="occupancy">Hardcoded</h3>
+                            <!-- <h3 class="text-center" id="occupancy">USE REACT TO GETCH LIVE DATA</h3> -->
+                            <h3 class="text-center" id="occupancy">{{slots|safe}}</h3>
 
                             <!-- Add buttons for deposit and withdrawal -->
                            
@@ -74,26 +80,29 @@
             
             <div class="col-md-4 col-sm-12 mb-4 ">
                 <div class="p-4 " id="container_3">
-                <form action="/guestcheckin" method="post">
-                    <h3 id="userloginHeading">Guest Check-In</h3>
-                    <div class="form-group">
-                        <label for="hours">Vehicle Number</label>
-                        <input type="text" class="form-control" id="VinNo" name="vehiclenumber" placeholder="Vehicle Number">
-                    </div>
-                    <!-- <div class="form-group">
-                        <label for="hours">Number of Hours</label>
-                        <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
-                    </div> -->
-                    <div class="d-flex justify-content-center"> <!-- Centering the button -->
-                        <button type="submit" class="btn btn-primary" id="guestcheckin">Check-In</button>
+                  
+                <fieldset id = "g_checkin">
+                  <form action="/guestcheckin" method="post">
+                      <h3 id="userloginHeading">Guest Check-In</h3>
+                      <div class="form-group">
+                          <label for="hours">Vehicle Number</label>
+                          <input type="text" class="form-control" id="VinNo" name="vehiclenumber" placeholder="Vehicle Number">
                       </div>
-                      
-                      <hr  style=" height:1px;background-color: #3c3c3c" />
-                      <div class="d-flex justify-content-center" style="flex-direction: column;"> <!-- Centering the button -->
-                        <small style="text-align: center;">Don't have account? Create one</small><br>
-                        <a href="{{url_for('signup')}}"><button type="button" class="btn btn-primary" id="submitbtn" >Create Account</button></a> 
-                      </div>
-                  </form>
+                      <!-- <div class="form-group">
+                          <label for="hours">Number of Hours</label>
+                          <input type="text" class="form-control" id="hours" name="hours" placeholder="Hours">
+                      </div> -->
+                      <div class="d-flex justify-content-center"> <!-- Centering the button -->
+                          <button type="submit" class="btn btn-primary" id="guestcheckin">Check-In</button>
+                        </div>
+                      </fieldset>
+                        <hr  style=" height:1px;background-color: #3c3c3c" />
+                        <div class="d-flex justify-content-center" style="flex-direction: column;"> <!-- Centering the button -->
+                          <small style="text-align: center;">Don't have account? Create one</small><br>
+                          <a href="{{url_for('signup')}}"><button type="button" class="btn btn-primary" id="submitbtn" >Create Account</button></a>
+                        </div>
+                    </form>
+                
                   </div>
             </div>
         </div>
@@ -184,6 +193,45 @@
         );
       }
       
+      function greyOutCheckIn(id_name) {
+          // id_name.disabled = true;
+          // id_name.style.backgroundColor = "grey";
+          // id_name.style.cursor = "not-allowed";
+          id_name.disabled = true;
+          id_name.style.cursor= 'not-allowed';
+          let inputs = id_name.querySelector('input');
+          for (let i = 0; i< inputs.length;i++){
+            inputs[i].style.cursor = 'not-allowed';
+          }
+          id_name.querySelector('button').style.cursor ='not-allowed';
+          
+          // add code to show mouse hover effect on the input fields too
+}
+
+// Function to enable the check-in button
+function enableCheckIn(id_name) {
+  // id_name.disabled = false;
+  // id_name.style.backgroundColor = "green";
+  // id_name.style.cursor = "pointer";
+  id_name.disabled = false;
+  id_name.style.cursor = 'default';
+  let inputs = id_name.querySelector('input');
+  for (let i = 0; i< inputs.length;i++){
+            inputs[i].style.cursor = 'default';
+          }
+  id_name.querySelector('button').style.cursor ='default';
+}
+  
+  var slots = document.getElementById('occupancy').innerHTML;
+  if (slots == '0'){
+    greyOutCheckIn(document.getElementById('u_checkin'));
+    greyOutCheckIn(document.getElementById('g_checkin'));
+  }
+  else{
+    enableCheckIn(document.getElementById('u_checkin'));
+    enableCheckIn(document.getElementById('g_checkin'));
+  }
+
   </script>
 
   <!-- Link to Bootstrap JS and any other JS files you may have -->
@@ -191,4 +239,5 @@
 
 </body>
 </html>
+
 

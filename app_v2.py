@@ -6,6 +6,7 @@ from os import path
 from sqlalchemy import func,desc
 from datetime import datetime,date,timedelta
 from math import ceil,floor
+from requests import post
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'FUSRODAH'
@@ -114,6 +115,7 @@ db.create_all()
 #     db.session.commit()
     
 def daily_summary():
+    print('running batches')
     i_total_amount_paid = db.session.query(func.sum(TIME.amount_paid)).filter(TIME.date == date.today()).scalar()
     if i_total_amount_paid is None:
         i_total_amount_paid = 0
@@ -121,12 +123,13 @@ def daily_summary():
     i_nonmember_count = db.session.query(func.count()).filter(TIME.membership == 0).scalar()
     i_total_parkers = i_member_count + i_nonmember_count
     i_total_checkouts = TIME.query.filter_by(checkout_time = date.today()).count()
-    i_available_slots = SLOTS.query.filter_by(date = date.today()).available_slots
+    i_available_slots = SLOTS.query.filter_by(date = date.today()).first().available_slots
     DAILY_SUMMARY.query.filter_by(date = date.today()).update({'available_slots' : i_available_slots,'total_parkers' :i_total_parkers,'total_amount' : i_total_amount_paid,'member_count' : i_member_count,'non_member_count' : i_member_count})
     db.session.commit()
-    i_hourly_price = DAILY_SUMMARY.query.filter_by(date == date.today()).hourly_price
+    i_hourly_price = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
     new_day = DAILY_SUMMARY(available_slots = i_available_slots,hourly_price = i_hourly_price)
-    db.add(new_day)
+    
+    db.session.add(new_day)
     
     db.session.commit()
 
@@ -182,13 +185,17 @@ def gohome():
 @app.route('/')
 def index():
     msg = get_flashed_messages()
+    # slots = post('http://localhost:5000/fetchAvailableSlots').text
+    slots = SLOTS.query.filter_by(date = date.today()).first().available_slots
+
     if 'is_authenticated' in session and session['is_authenticated'] == 1:
         if session['usertype']== 'user':
             return redirect(url_for('dashboard'))
         return redirect(url_for('adminDashboard'))
     if msg:
-        return render_template('index.html',message = msg[0])
-    return render_template('index.html')
+
+        return render_template('index.html',message = msg[0],slots = slots)
+    return render_template('index.html',slots = slots)
 
 @app.route('/usercheckin',methods=['POST'])
 def usercheckin():
@@ -312,18 +319,25 @@ def subscribe():
     #to handle, add the durratioon of membership to start date
     if request.method == 'POST':
         print("&&&&&&&&&&&&&&&&&&&"+request.form['duration'])
-        USERS.query.filter_by(user_name = session['user']).update({'membership' : 1,'membership_start' : date.today(),'membership_end' : date.today() + timedelta(days = int(request.form['duration']))})
-        db.session.commit()
-        flash('subscribed')
+        
+        slots = SLOTS.query.filter_by(date = date.today()).first().available_slots
+        if slots == 0:
+            flash('cant_subscribe')
+            
+        else:
+            USERS.query.filter_by(user_name = session['user']).update({'membership' : 1,'membership_start' : date.today(),'membership_end' : date.today() + timedelta(days = int(request.form['duration']))})
+            db.session.commit()
+            flash('subscribed')
         return redirect(url_for('dashboard'))
 #########################################################
 
 
 #######################
 #user functs --- to quickly fetch stats to display in the user dashboard
+#somehow this is making the index page run slow
 @app.route('/fetchAvailableSlots',methods = ['POST'])
 def fetchAvailableSlots():
-    return SLOTS.query.filter_by(date = date.today()).first().available_slots
+    return str(SLOTS.query.filter_by(date = date.today()).first().available_slots)
 
 @app.route('/fetchWalletBalance',methods = ['POST'])
 @user_login_required
@@ -525,7 +539,7 @@ def error405(e):
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func = daily_summary, trigger='cron', hour = 23, minute = 58 )  
+    scheduler.add_job(func = daily_summary, trigger='cron', hour = 0, minute = 22 )  
     # scheduler.add_job(func = notify_admin,trigger = 'interval',seconds = 60)
     scheduler.start()
 
