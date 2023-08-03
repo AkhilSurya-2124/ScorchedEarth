@@ -523,7 +523,6 @@ def error404(e):
 def error405(e):
     return render_template('405.html'),405
 
-
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
     scheduler.add_job(func = daily_summary, trigger='cron', hour = 23, minute = 58 )  
