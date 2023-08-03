@@ -81,6 +81,10 @@ class SLOTS(db.Model):
     total_slots = db.Column(db.Integer, server_default = '10')
     available_slots = db.Column(db.Integer,server_default = '10')
 
+class INCOME(db.Model):
+    id = db.Coumn(db.Integer,autoincrement = True,primary_key = True)
+    total_income = db.Column(db.Integer,server_default = '0')
+
 class SUBSCRIPTION(db.Model):
     duration_in_days = db.Column(db.Integer,primary_key=True)
     cost =db.Column(db.Integer)
@@ -376,18 +380,44 @@ def guestcheckin():
 #imp change the endpoints naming convention
 #########################################################
 #admin functions
+@app.route('/changeTotalSlots',methods =['POST'])
+@admin_login_required
+def changeTotalSlots():
+    slots = SLOTS.query.filter_by(date = date.today()).first()
+    slots.available_slots += request.form['slots']
+    slots.total+= request.form['slots']
+    db.session.commit()
+    flash('total_slots_changed')
+    return redirect(url_for('adminDashboard'))
+
+app.route('/changeSubcriptionCost',methods =['POST'])
+@admin_login_required
+def changeSubscriptionCost():
+    modify = request.form
+    # month=modify['month']
+    # month_3 = modify['month_3']
+    # month_6=modify['month_6']
+    # year = modify['year']
+    # a = 28
+    # for i in modify:
+    #     SLOTS.query.filter_by(duration_in_days = a).first().update({'cost':i})
+    #     a*=2
+    SLOTS.query.filter_by(date  = date.today()).first().update(request.form)
+    #now this i a bad design -> i think i made it better
+    db.session.commit()
+    flash('costs_changed')
+    redirect(url_for('adminDashboard'))
+
 @app.route('/addUser',methods=['POST'])
 @admin_login_required
 def addUser():
-    if request.method == 'POST':
-        user = request.form
-        
-        to_add = USERS(user_name = user['username'],password = user['password'],vehicle_number = user['vehiclenumber'],wallet_balance = user['wallet'])
-        db.session.add(to_add)
-        db.sesison.commit()
-        flash('User Successfully Added')
-    else:
-        return 2
+    user = request.form
+    to_add = USERS(user_name = user['username'],password = user['password'],vehicle_number = user['vehiclenumber'],wallet_balance = user['wallet'])
+    db.session.add(to_add)
+    db.sesison.commit()
+    flash('User Successfully Added')
+    return redirect(url_for('adminDashboard'))
+    
 
 
 @app.route('/updateUserPassword',methods=['POST'])
@@ -465,7 +495,11 @@ def adminlogin():
 @app.route('/adminDashboard',methods=['GET'])
 @admin_login_required
 def adminDashboard():
-    return render_template('admindashboard.html')
+    dic
+    costs = SUBSCRIPTION.query.all()
+    for row in costs:
+        dic[row.duration_in_days] = row.cost
+    return render_template('admindashboard.html',message = get_flashed_messages(),costs = costs)
 
 @app.route('/checkout',methods=['POST'])
 def checkout():
@@ -492,6 +526,8 @@ def checkout():
             # TIME.update().where(TIME.parking_id == guest.guest_id).values(amount_paid = to_charge,checkout_time = guest.checkout_time)
             guest.amount_paid = to_charge
             guest.checkout_time = guest.checkout_time
+            p = INCOME.query.filter_by(id = 1).first()
+            p.total_income += to_charge
             db.session.commit()
             flash(f'Successfully Clocked Out')
             return gohome()
@@ -517,7 +553,8 @@ def checkout():
                 if to_charge < hourlyprice:
                     to_charge = hourlyprice
                 
-            
+            p = INCOME.query.filter_by(id = 1).first()
+            p.total_income += to_charge
             user.parking_status = 0   
             time.amount_paid = to_charge
             db.session.commit()

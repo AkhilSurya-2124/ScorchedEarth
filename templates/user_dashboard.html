@@ -50,32 +50,34 @@
                   </div>
             </div>
           <div class="col-md-4 col-sm-12 mb-4">
-            <div class="p-4 " id="container_2">
-                <div class="col-md-12">
-                    <!-- Wallet Balance Card -->
-                    <div class="card">
-                        <div class="card-header">
-                        Reserve a Spot
+            
+              <div class="p-4 " id="container_2">
+                  <div class="col-md-12">
+                      <!-- Wallet Balance Card -->
+                      <div class="card">
+                          <div class="card-header">
+                          Reserve a Spot
+                          </div>
+                          <div class="card-body">
+                              <!-- Display the wallet balance here -->
+                              <h3 class="text-center" id="occupancy">{{slots | safe}}</h3>
+                              <!-- Add buttons for deposit and withdrawal -->
+                              <form  action="/spotreserve" method="POST">
+              
+                                  <div class="form-group">
+                                      <label for="reservetime">Check-In Time </label>
+                                      <input type="time" class="form-control" name="reservetime" />
+                                  </div>
+                                  <div class="text-center">
+                                      <button class="btn btn-success mr-2" id="reserve">Reserve</button>
+                                  </div>
+                                </form>
+              
+                          </div>
+                      </div>
+                      </div>
                         </div>
-                        <div class="card-body">
-                            <!-- Display the wallet balance here -->
-                            <h3 class="text-center" id="occupancy">{{slots | safe}}</h3>
-                            <!-- Add buttons for deposit and withdrawal -->
-                            <form  action="/spotreserve" method="POST">
-                                
-                                <div class="form-group">
-                                    <label for="reservetime">Check-In Time </label>
-                                    <input type="time" class="form-control" name="reservetime" />
-                                </div>
-                                <div class="text-center">
-                                    <button class="btn btn-success mr-2" id="reserve">Reserve</button>
-                                </div>
-                              </form>
-                           
-                        </div>
-                    </div>
-        </div>
-          </div>
+            
           </div>
             
             <div class="col-md-4 col-sm-12 mb-4 ">
@@ -89,7 +91,7 @@
                             <div class="card-body">
                                 <h3 class="text-center" id="membership_status">HMM, NOT WORKING</h3>
                                 <div class="text-center">
-                                    <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Manage Membership</button>
+                                    <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" id = 'subs'>Manage Membership</button>
                                 </div>
                                 
                             </div>
@@ -101,10 +103,12 @@
   <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content" style="min-width: 800px;">
-        <div class="modal-header">
-          <h1 class="modal-title fs-5" id="staticBackdropLabel">Manage Membership</h1>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
+        
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="staticBackdropLabel">Manage Membership</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" ></button>
+          </div>
+        
         <div class="modal-body ">
             <div class="card-group ">
                 <div class="card">
@@ -171,16 +175,17 @@
 
       //code for disable reserve button added on aug 1 09:35 pm
 
-        const reserve = document.getElementById("reserve");
+        
 
-        function greyOutCheckIn() {
+        function greyOutCheckIn(reserve) {
             reserve.disabled = true;
   reserve.style.backgroundColor = "grey";
   reserve.style.cursor = "not-allowed";
+  
 }
 
 // Function to enable the check-in button
-function enableCheckIn() {
+function enableCheckIn(reserve) {
     reserve.disabled = false;
   reserve.style.backgroundColor = "green";
   reserve.style.cursor = "pointer";
@@ -199,11 +204,12 @@ function enableCheckIn() {
             //code for disable reserve button added on aug 1 09:35 pm
           if ('{{slots | safe}}' == 0){
 console.log("comming in side the slotssssss")
-            greyOutCheckIn();
+            
+            greyOutCheckIn(document.getElementById("subs"))
                   }
                   else{
-                    enableCheckIn();
-
+                    
+                    enableCheckIn(document.getElementById("subs"));
                   }
         var radios = document.getElementsByName('duration');
         for(let radio of radios){

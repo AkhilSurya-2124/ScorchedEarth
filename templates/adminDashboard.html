@@ -289,6 +289,9 @@
 
 
 <script>
+  let m_costs = '{{costs |tojson |safe}}';
+  //auto popualate costs in the changesubscription form
+  //@rakesh -> it should be a popup form
   // Function to populate the table with dynamic data
   function populateTable() {
     const tableBody = document.getElementById('tableBody');

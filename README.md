@@ -11,7 +11,7 @@ make validations for negative values and put constraints on submissions
 
     make the starting value of parking id 1000 -> i think not possible natively on sqlite -> if first value is 1000, then it will create the following rows from 1001, should i insert  empty row for this?, or i could make the check if its the first row, then we will insert 1000 explicitly... but we would be checking the table size everytime... dont like it -> better to insert  row with 1000 and then immediately delete it lmao-> didnt work not worth to pursue, just let it be 1 ->ni
 
-    members get a guaranteed spot, so members cannot be more than the available slots.....
+    members get a guaranteed spot, so members cannot be more than the available slots..... -> done
     dang need another endpoint now, should be public -> done
 
 
