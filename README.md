@@ -1,5 +1,6 @@
 # ScorchedEarth
 backend:
+make validations for negative values and put constraints on submissions
     spot reserve -> how is the time fetched ? nf
 
     subscribe -> need front end for this, how is duration recived? nf
