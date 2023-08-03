@@ -362,7 +362,7 @@ def guestcheckin():
 #imp change the endpoints naming convention
 #########################################################
 #admin functions
-@app.route('/addUser',methods=['POST','GET'])
+@app.route('/addUser',methods=['POST'])
 @admin_login_required
 def addUser():
     if request.method == 'POST':
@@ -376,7 +376,7 @@ def addUser():
         return 2
 
 
-@app.route('/updateUserPassword',methods=['POST','GET'])
+@app.route('/updateUserPassword',methods=['POST'])
 @admin_login_required
 def updateUserPassword():
     if request.method == 'POST':
