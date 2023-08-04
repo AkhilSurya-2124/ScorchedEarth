@@ -37,7 +37,7 @@
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Monitor Daily Summary </button>
+                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="getdata(document.getElementById('tablebody'))">Monitor Daily Summary </button>
             </div>            
           </div>
         </div>
@@ -268,34 +268,58 @@
 
 
 <script>
-  let m_costs = '{{costs |tojson |safe}}';
+  a=getdata(document.getElementById('tablebody'));
+  a = a.json();
+  function getdata(table){
+    return fetch('/showDailySummary',
+        {
+            method:'POST'
+            
+        }
+      // ).then(data=> data.json()).then(data=>
+      //   data.forEach(rows => {
+      //     console.log(data[rows])
+      //     row = table.createElement('tr');
+      //     rows.forEach(cell => {
+      //       console.log(data[rows])
+      //       let c = row.createElement('td');
+      //       c.innerHTML = cell;
+      //       console.log(cell);
+      //     }
+          
+            
+      //     )
+      //   })
+      )
+}
+  // let m_costs = 
   // Function to populate the table with dynamic data
-  function populateTable() {
-    const tableBody = document.getElementById('tableBody');
+  // function populateTable() {
+  //   const tableBody = document.getElementById('tableBody');
 
-    // Replace this with actual data retrieval logic
-    const dummyData = '{{summary | tojson | safe}}'
+  //   // Replace this with actual data retrieval logic
+  //   const table_data = 
 
-    // Clear existing rows
-    tableBody.innerHTML = '';
+  //   // Clear existing rows
+  //   tableBody.innerHTML = '';
 
-    // Add new rows based on data
-    dummyData.forEach(data => {
-      const newRow = document.createElement('tr');
-      newRow.innerHTML = `
-        <td>${data.col1}</td>
-        <td>${data.col2}</td>
-        <td>${data.col3}</td>
-        <td>${data.col4}</td>
-      `;
-      tableBody.appendChild(newRow);
-    });
-  }
+  //   // Add new rows based on data
+  //   table_data.forEach(data => {
+  //     const newRow = document.createElement('tr');
+  //     newRow.innerHTML = `
+  //       <td>${data.col1}</td>
+  //       <td>${data.col2}</td>
+  //       <td>${data.col3}</td>
+  //       <td>${data.col4}</td>
+  //     `;
+  //     tableBody.appendChild(newRow);
+  //   });
+  // }
 
-  // Call the function when the modal is shown
-  $('#staticBackdrop').on('shown.bs.modal', function () {
-    populateTable();
-  });
+  // // Call the function when the modal is shown
+  // $('#staticBackdrop').on('shown.bs.modal', function () {
+  //   populateTable();
+  // });
 </script> 
 </body>
 </html>

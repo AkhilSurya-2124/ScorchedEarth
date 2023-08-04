@@ -1,4 +1,4 @@
-from flask import Flask,render_template, request,redirect,url_for,flash,get_flashed_messages,session
+from flask import Flask,render_template, request,redirect,url_for,flash,get_flashed_messages,session,jsonify
 from functools import wraps
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_sqlalchemy import SQLAlchemy,event #using middle parties will decrease flexibility   
@@ -502,12 +502,17 @@ def adminlogin():
             flash('invalid username / password')
             return redirect(url_for('adminlogin'))
 
-@app.route('/showDailySummary')
+@app.route('/showDailySummary',methods = ['POST'])
 @admin_login_required
 def showDailySummary():
-    table = DAILY_SUMMARY.query.all()
-
-    return render_template('adminDashboard.html',summary=json(table))
+    daily_summary_data = DAILY_SUMMARY.query.all()
+    lis = []
+    columns =  DAILY_SUMMARY.__table__.columns.keys()
+    for row in daily_summary_data:
+        dic ={}
+        lis.append({column: getattr(row, column) for column in columns})
+    
+    return  jsonify(lis)
 
 
 
@@ -562,13 +567,16 @@ def checkout():
                 to_charge = 0
                 if user.membership == 0:
                     hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().user_hourly_price
-                    to_charge = to_charge = ceil((datetime.now() - guest.checkin_time).seconds /60 /60) * hourlyprice
+                    time = TIME.query.filter_by(parker = user.user_name).order_by(desc( TIME.checkin_time )).first()
+                    to_charge = to_charge = ceil((datetime.now() - time.checkin_time).seconds /60 /60) * hourlyprice
                     if to_charge < hourlyprice:
                         to_charge = hourlyprice
                     session['id'] = user.user_name
                     session['cost'] = to_charge
                     session['user_type'] ='user'
                     return redirect(url_for('securoPay'))
+                    
+                    
                 else:
                     user = TIME.query.filter_by(parker = request.form['parkingId']).order_by(desc( TIME.checkin_time )).first()
                     user.checkout_time = datetime.now()
@@ -579,26 +587,28 @@ def checkout():
             #user
             #if not suffcient balance in wallet, redirect to payment
             
-@app.route('/securoPay',methods=['POST'])           
+@app.route('/securoPay',methods=['POST','GET'])           
 def securoPay():
-    if session['user_type'] == 'guest':
-        guest = TIME.query.filter_by(parking_id = session['id']).first()
-        guest.checkout_time = datetime.now()
-        guest.amount_paid = session['cost']
-        
+    if request.method == 'POST':
+        if session['user_type'] == 'guest':
+            guest = TIME.query.filter_by(parking_id = session['id']).first()
+            guest.checkout_time = datetime.now()
+            guest.amount_paid = session['cost']
+            
+        else:
+            # user = USERS.query.filter_by(user_name = session['id']).first()
+            user = TIME.query.filter_by(parker = session['id']).order_by(desc( TIME.checkin_time )).first()
+            user.checkout_time = datetime.now()
+            user.amount_paid = session['cost']
+        p = INCOME.query.filter_by(id = 1).first()
+        p.total_income += session['cost']
+        slots = SLOTS.query.filter_by(date = date.today()).first()
+        slots.available_slots += 1
+        db.session.commit()    
+        flash(f'Payment Successfull')
+        return gohome()
     else:
-        # user = USERS.query.filter_by(user_name = session['id']).first()
-        user = TIME.query.filter_by(parker = session['id']).order_by(desc( TIME.checkin_time )).first()
-        user.checkout_time = datetime.now()
-        user.amount_paid = session['cost']
-    p = INCOME.query.filter_by(id = 1).first()
-    p.total_income += session['cost']
-    slots = SLOTS.query.filter_by(date = date.today()).first()
-    slots.available_slots += 1
-    db.session.commit()    
-    flash(f'Payment Successfull')
-    return gohome()
-
+        return render_template('payment.html',cost = session['cost'])
 
 # @app.route('/checkout',methods=['POST'])
 # def checkout():
