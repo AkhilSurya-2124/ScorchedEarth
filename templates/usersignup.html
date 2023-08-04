@@ -8,7 +8,10 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='checkin.css') }}">
 
     {% include 'nav_head.html' %}
-   
+   <style>span{
+    padding-right:2ch;
+    color: red;
+}</style>
 </head>
 <body>
   {% include 'nav.html' %}
@@ -42,12 +45,12 @@
                                   </div>
                                   <div >
                                     <label for="password">Password</label>
-                                    <input type="password" class="form-control" id="password"  name= "password" placeholder="Enter Password">
+                                    <input type="password" class="form-control" id="password"  name= "password" placeholder="Enter Password" oninput="eevaluate()">
                                   </div>
                                   <div >
                                     <label for="confirmpassword">Confirm Password</label>
                                     <!-- @ put validation here -->
-                                    <input type="password" class="form-control" id="confirmpassword" name= "confirmpassword" placeholder="re-enter Password">
+                                    <input type="password" class="form-control" id="confirmpassword" name= "confirmpassword" placeholder="re-enter Password" >
                                   </div>
                                   
                                   <div class="d-flex justify-content-center" style="flex-direction: column;"> <!-- Centering the button -->
@@ -60,16 +63,84 @@
         </div>
           </div>
           </div>
+
+          <div class="col-md-4 col-sm-12 mb-4 ">
+            <div class="p-4 " id="container_2">
+              <div>
+                <ul style="list-style-type: none;">
+                  <li><span id="lowercase">&#x1F5D9;</span>It must contain a lowercase letter</li>
+                  <li><span id="uppercase">&#x1F5D9;</span>It must contain an uppercase letter</li>
+                 
+                  <li><span id="eight">&#x1F5D9;</span>Password should be atleast 8 characters</li>
+              </ul>
+              </div>
+</div>
+          </div>
+
             
             
                   </div>
             </div>
         </div>
     </div> 
+    
 <script>
     if ('{{message | safe}}' == 'user_exists'){
       document.getElementById('show').innerHTML = 'User name already exists, please try another user name'
     }
+    function flip(val){
+        
+        document.getElementById(val).innerHTML = "\u{2714}";
+        document.getElementById(val).style.color="green";
+        
+    }
+    function rreset(ids =["lowercase","uppercase","eight"]){
+        
+        if (ids.length == 3){upr=0;
+        lwr=0;
+      
+        eit=0;}
+        for (let i = 0; i < ids.length; i++) {
+            document.getElementById(ids[i]).innerHTML = "&#x1F5D9";
+            document.getElementById(ids[i]).style.color="red";  
+                   
+        }
+        
+        
+    }
+    function eevaluate(){
+        
+        var a=0, pwd = document.getElementById("password").value;
+        rreset()
+        if (pwd.length>=8){
+            flip("eight");
+            
+            
+            
+        }
+        else{
+            eit = 0;
+        }
+        
+        for (let i = 0; i < pwd.length; i++) {
+          
+            if (pwd[i].match(/[a-z]/)){
+                
+                flip("lowercase");
+                
+                
+            }
+            else if (pwd[i].match(/[A-Z]/)){
+                // console.log("upper")
+                flip("uppercase");
+                
+                
+            }
+            
+            
+        }
+    }
+  
 </script>
 </body>
 </html>
