@@ -72,7 +72,7 @@
                     </div>
           </div>
           </div>
-            <div class="mt-4"  id="myModal">
+            <div class="mt-4"  id="errorMessage">
                                 <b></b>
               
           </div>
@@ -118,7 +118,7 @@
                                
                               
                           </label>
-                          <button type="submit" class="btn btn-primary" id="submitbtn">Check-out</button>
+                          <button type="submit" class="btn btn-primary" id="checkout">Check-out</button>
                         </form>
         </div>
         </div>
@@ -130,7 +130,7 @@
       //     // Get the button elements and message container
       //     const usercheckin = document.getElementById('usercheckin');
       //     const guestcheckin = document.getElementById('guestcheckin');
-      //     const modal = document.getElementById('myModal');
+      //     const modal = document.getElementById('errorMessage');
 
       //     // Function to show the modal and hide it after 5 seconds
       //     const showModal = (msg) => {
@@ -166,29 +166,29 @@
       var msg = '{{message | safe}}';
       if (msg != ''){
         if (msg == 'login_failed'){
-          document.getElementById('myModal').innerHTML = "Invalid username or password";
+          document.getElementById('errorMessage').innerHTML = "Invalid username or password";
         }
         else if (msg == 'already_checkedin'){
-          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest already clocked-in";
+          document.getElementById('errorMessage').innerHTML = "Invalid input: User/Guest already clocked-in";
         }
         else if (msg == 'invalid_username'){
-          document.getElementById('myModal').innerHTML = "Invalid Username : Please try again";
+          document.getElementById('errorMessage').innerHTML = "Invalid Username : Please try again";
         }
         else if (msg == 'parking_id_not_found'){
-          document.getElementById('myModal').innerHTML = "Parkin ID not found : Please try again";
+          document.getElementById('errorMessage').innerHTML = "Parkin ID not found : Please try again";
         }
         else if (msg == 'not_clocked_in'){
-          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest not checked-in";
+          document.getElementById('errorMessage').innerHTML = "Invalid input: User/Guest not checked-in";
         }
         else if (msg == 'already_clocked_in'){
-          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest already clocked-in";
+          document.getElementById('errorMessage').innerHTML = "Invalid input: User/Guest already clocked-in";
         }
         else{
-          document.getElementById('myModal').innerHTML = msg;
+          document.getElementById('errorMessage').innerHTML = msg;
         }
-        document.getElementById('myModal').style.display = 'flex';
+        document.getElementById('errorMessage').style.display = 'flex';
         setTimeout(()=>{
-          document.getElementById('myModal').style.display = 'none';
+          document.getElementById('errorMessage').style.display = 'none';
         },5000
         );
       }

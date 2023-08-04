@@ -67,7 +67,7 @@ class DAILY_SUMMARY(db.Model):
     #we store the summary here
     date = db.Column(db.Date,primary_key = True)
     total_slots = db.Column(db.Integer,default = 10)
-    available_slots = db.Column(db.Integer,server_default = '0')
+    available_slots = db.Column(db.Integer,server_default = '10')
     total_parkers = db.Column(db.Integer,server_default = '0')
     guest_hourly_price = db.Column(db.Integer,server_default = '10')
     user_hourly_price = db.Column(db.Integer,server_default = '7')
@@ -212,10 +212,11 @@ def usercheckin():
             return gohome()
         print('good checkin')
         flash(f'Hey there {user_db.user_name[0]}, your check-in time is {datetime.now().hour}:{datetime.now().minute}')
-
+        slots = SLOTS.query.filter_by(date = date.today() ).first()
+        slots.available_slots -= 1
         #to-do include membership condition-> should i just do it myself?, in backend we can just
         #verify the condition at backend and calculated the price
-        checkin = TIME(parker = user_db.user_name,checkin_time = datetime.now())
+        checkin = TIME(parker = user_db.user_name,checkin_time = datetime.now(),date = date.today(),vehicle_number = user_db.vehicle_number)
         user_db.parking_status = 1
         db.session.add(checkin)
         db.session.commit()
@@ -234,6 +235,10 @@ def signup():
             return redirect(url_for('dashboard'))
         else:
             user_inf = request.form
+            exist = USER.query.filter_by(user_name = user_inf).first()
+            if exist:
+                flash('user_exists')
+                return redirect(url_for('signup'))
             #do some math here
             to_insert = USERS(user_name = user_inf['username'],password = user_inf['password'],vehicle_number = user_inf['vehiclenumber'])
             db.session.add(to_insert)
@@ -326,12 +331,23 @@ def subscribe():
     if request.method == 'POST':
         print("&&&&&&&&&&&&&&&&&&&"+request.form['duration'])
         
-        slots = SLOTS.query.filter_by(date = date.today()).first().available_slots
-        if slots == 0:
+        slots = SLOTS.query.filter_by(date = date.today()).first()
+        if slots.available_slots == 0:
             flash('cant_subscribe')
             
         else:
-            USERS.query.filter_by(user_name = session['user']).update({'membership' : 1,'membership_start' : date.today(),'membership_end' : date.today() + timedelta(days = int(request.form['duration']))})
+            user =USERS.query.filter_by(user_name = session['user']).first()
+            cos = SUBSCRIPTION.query.filter_by(duration_in_days = int( request.form['duration'])).first().cost
+            if user.wallet < cos:
+                flash('insufficient_balance')
+                return redirect(url_for('dashboard'))
+            # ({'membership' : 1,'membership_start' : date.today(),'membership_end' :))})
+            user.membership = 1
+            user.membership_start = date.today()
+            user.membership_end = date.today() + timedelta(days = int(request.form['duration']))
+            # samajavaragamana
+            user.wallet_balance -= cos
+            slots.available_slots-=1
             db.session.commit()
             flash('subscribed')
         return redirect(url_for('dashboard'))
@@ -358,7 +374,7 @@ def guestcheckin():
     #imp goto line 51
     v_number = request.form['vehiclenumber']
     
-    guest = TIME.query.filter_by(vehicle_number = v_number).order_by(desc(TIME.checkin_time)).first()
+    guest = TIME.query.filter_by(vehicle_number = v_number).filter_by(parker ='guest').order_by(desc(TIME.checkin_time)).first()
     if guest:
         print(guest.parking_id)
     if guest and (not guest.checkout_time):
@@ -462,6 +478,7 @@ def showSummary():
         return SLOTS.query.filter_by(date = request.form['date']).first()
     else:
         return render_template('showSummary.html')
+
 
 
         
@@ -600,6 +617,8 @@ def securoPay():
             user = TIME.query.filter_by(parker = session['id']).order_by(desc( TIME.checkin_time )).first()
             user.checkout_time = datetime.now()
             user.amount_paid = session['cost']
+        USERS.query.filter_by(user_name = session['id']).update({'parking_status':0})
+        
         p = INCOME.query.filter_by(id = 1).first()
         p.total_income += session['cost']
         slots = SLOTS.query.filter_by(date = date.today()).first()
