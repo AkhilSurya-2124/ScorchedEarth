@@ -22,6 +22,7 @@
 <body >
   {% include 'nav.html' %}
 <div  style="display: flex;" ;>
+  
   <!-- Main Content - 3/4th of the screen -->
   <div class="" style="width: 75%;padding: 10px;padding-top: 10px !important;">
     <div class="row">
@@ -37,7 +38,7 @@
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="getdata(document.getElementById('tablebody'))">Monitor Daily Summary </button>
+                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onclick="getdata(document.getElementById('tableBody'))">Monitor Daily Summary </button>
             </div>            
           </div>
         </div>
@@ -52,14 +53,22 @@
                         <h1 class="modal-title fs-5" id="staticBackdropLabel">Monitor Daily Summary </h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                       </div>
-                      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+                      <div class="modal-body" style="max-height: 400px; overflow-y: auto;width: 80%;">
                         <table class="table">
-                          <thead>
+                          <thead id="tablehead">
                             <tr>
-                              <th>Column 1</th>
-                              <th>Column 2</th>
-                              <th>Column 3</th>
-                              <th>Column 4</th>
+                              <th>Available Slots</th>
+                              <th>Date</th>
+                              <th>Guest Hourly Price</th>
+                              <th>Total Subscribers</th>
+                              <th>Total Non-Subscribed Users</th>
+                              <th>Daily Turnover</th>
+                              <th>Total Parkers</th>
+                              <th>Total Slots</th>
+                              <th>User Hourly Price</th>
+                              
+
+
                             </tr>
                           </thead>
                           <tbody id="tableBody">
@@ -268,30 +277,28 @@
 
 
 <script>
-  a=getdata(document.getElementById('tablebody'));
-  a = a.json();
+  
   function getdata(table){
-    return fetch('/showDailySummary',
+    // table = document.getElementById('tableBody');
+     table.innerHTML='';
+     fetch('/showDailySummary',
         {
             method:'POST'
             
         }
-      // ).then(data=> data.json()).then(data=>
-      //   data.forEach(rows => {
-      //     console.log(data[rows])
-      //     row = table.createElement('tr');
-      //     rows.forEach(cell => {
-      //       console.log(data[rows])
-      //       let c = row.createElement('td');
-      //       c.innerHTML = cell;
-      //       console.log(cell);
-      //     }
-          
-            
-      //     )
-      //   })
-      )
-}
+      ).then(response=> response.json()).then(data=>{
+        console.log(data);
+        data.forEach(row => {
+          let s ='<tr>';
+            for (let column in row) {
+              s=s.concat(`<td>${row[column]}</td>`);
+            }
+          s=s.concat('</tr>');
+          table.innerHTML += s;
+        });
+        
+      })
+  }
   // let m_costs = 
   // Function to populate the table with dynamic data
   // function populateTable() {
