@@ -82,7 +82,7 @@ class SLOTS(db.Model):
     available_slots = db.Column(db.Integer,server_default = '10')
 
 class INCOME(db.Model):
-    id = db.Coumn(db.Integer,autoincrement = True,primary_key = True)
+    id = db.Column(db.Integer,autoincrement = True,primary_key = True)
     total_income = db.Column(db.Integer,server_default = '0')
 
 class SUBSCRIPTION(db.Model):
@@ -456,6 +456,18 @@ def showSummary():
         return SLOTS.query.filter_by(date = request.form['date']).first()
     else:
         return render_template('showSummary.html')
+
+@app.route('/sesuroServ',methods = ['POST','GET'])#payment page
+def securoServ():
+    if request.method == 'POST':
+        if request.form['parkingid'].isnumeric():
+
+        checkin = TIME.query.filter_by()
+        return render_template('payment.html')
+    else:
+        TIME.request.form
+
+        
 ##########################################################
 #admin functions
 #imp 
@@ -495,12 +507,24 @@ def adminlogin():
 @app.route('/adminDashboard',methods=['GET'])
 @admin_login_required
 def adminDashboard():
-    dic
+    q
     costs = SUBSCRIPTION.query.all()
     for row in costs:
         dic[row.duration_in_days] = row.cost
     return render_template('admindashboard.html',message = get_flashed_messages(),costs = costs)
+@app.route('/checkout',methods=['POST','GET'])
+def checkout():
+    if request.method == 'GET':
+        
+        return render_template('securoserv.html')
+    else:
 
+        if request.form['parkingId'].isnumeric():
+            #guest
+            #redirect to payment page
+        else:
+            #user
+            #if not suffcient balance in wallet, redirect to payment
 @app.route('/checkout',methods=['POST'])
 def checkout():
     #checkout time, calc the price, increase availableslots
@@ -529,7 +553,7 @@ def checkout():
             p = INCOME.query.filter_by(id = 1).first()
             p.total_income += to_charge
             db.session.commit()
-            flash(f'Successfully Clocked Out')
+            flash(f'Payment Successfull')
             return gohome()
         else:
             flash('parking_id_not_found')
