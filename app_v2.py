@@ -507,7 +507,6 @@ def adminlogin():
 @app.route('/adminDashboard',methods=['GET'])
 @admin_login_required
 def adminDashboard():
-    q
     costs = SUBSCRIPTION.query.all()
     for row in costs:
         dic[row.duration_in_days] = row.cost
