@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecuroServ</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        form {
+            background-color: #28172d;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-color: #bb0401;
+            border-style: solid;
+            border-radius: 20px;
+        }
+        #paybtn{
+            background-color: #bb0401; ;
+            color:antiquewhite;
+        }
+    </style>
+</head>
+<body style="background-image: url('https://i.imgur.com/0A0kvg7.png');background-size: cover;background-repeat:repeat-Y;background-position:center center ;">
+    
+    <form  action="/checkout" method="post">
+    <h2>Total Charge : {{cost | safe}}</h2>
+    <input id="paybtn" type="submit" value="Pay">
+    </form>
+</body>
+</html>

@@ -11,7 +11,13 @@
     
     {% include 'nav_head.html' %}
  
-    
+    <style>
+      /* Additional CSS rules for image inside the card */
+      .card-body img {
+        max-width: 100%; /* Ensure the image does not exceed the card body width */
+        height: auto; /* Preserve the aspect ratio of the image */
+      }
+    </style>
 </head>
 <body >
   {% include 'nav.html' %}
@@ -27,11 +33,11 @@
               Monitor Daily Summary
             </div>
             <div class="card-body">
- 
+              <img src="https://media.istockphoto.com/id/1202039452/photo/profile-view-of-a-businesswoman-analyzing-charts-on-a-computer-in-the-office.webp?b=1&s=170667a&w=0&k=20&c=yydzbC-uMQ9IyugZp9yYUjS3WhzxF1TcEnhf3gxSws4=" alt="">
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Check-Out User1 </button>
+                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop" >Monitor Daily Summary </button>
             </div>            
           </div>
         </div>
@@ -41,7 +47,7 @@
                 <!-- Modal -->
                 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                   <div class="modal-dialog">
-                    <div class="modal-content" style="min-width: 800px;">
+                    <div class="modal-content">
                       <div class="modal-header">
                         <h1 class="modal-title fs-5" id="staticBackdropLabel">Monitor Daily Summary </h1>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -78,12 +84,12 @@
             </div>
             <div class="card-body">
               
-                
+              <img src="https://media.istockphoto.com/id/887711382/photo/women-putting-coins-into-parking-meter.jpg?s=612x612&w=0&k=20&c=Lc_tiI0uJJlj4QxAEx8av4Tv6D9LiNwk8oMM_ltF5WM=">  
                 
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" form="adminAddCheckOut" type="submit">Check-Out User </button>
+                <button class="btn btn-success mr-2" form="adminAddCheckOut" type="submit">History </button>
             </div>            </div>
         </div>
             </div>
@@ -144,7 +150,7 @@
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" form="addToWallet" type="submit">Add to Wallet</button>
+                <button class="btn btn-success mr-2" form="addToWallet" type="submit">Set Hourly Charges</button>
             </div>
             </div>
         </div>
@@ -174,7 +180,7 @@
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" form="adminUpdateUserPassword" type="submit">Add User </button>
+                <button class="btn btn-success mr-2" form="adminUpdateUserPassword" type="submit">Update Password </button>
             </div>            </div>
         </div>
             </div>
@@ -243,38 +249,7 @@
             </div>
       </div>
 
-      <div class="col-md-4 mb-4">
-        <div class="p-4 " id="container_1">
-          <div class="card">
-            <div class="card-header">
-               My Wallet Balance
-            </div>
-            <div class="card-body">
-                <h3 class="text-center" id="wallet">
-                  balance
-                </h3>
-                
-                <!-- Add buttons for deposit and withdrawal -->
-                
-                    
-                    <div class="form-group">
-                        <form action="/addToWallet" id="addToWallet" method="post">
-                            <label for="addamount">Amount To Add </label>
-                            <input type="text" class="form-control" id="addamount" name="addtowallet" placeholder="Enter amount to be added">  
-                        </form>
-                    </div>
-                    <div class="text-center">
-                        <button class="btn btn-success mr-2" form="addToWallet" type="submit">Add to Wallet</button>
-                    </div>
-                
-                
-            </div>
-            <div class="card-footer text-muted">
-              2 days ago
-            </div>
-        </div>
-            </div>
-      </div>
+      
     </div>
   </div>
 
@@ -282,7 +257,11 @@
   <!-- Right-hand Notification - 1/4th of the screen -->
   <div  style="background-color: #fff;width:25% ">
     <!-- Your notification content goes here -->
-    <h4>Notification</h4>
+    <div style="background-color:rgb(225, 225, 156) ;padding:20px;">
+      <strong>Slots Available:</strong> <span ></span> <br>
+    </div>
+    <h4 style="text-align: center;">Notification </h4>
+
   </div>
 
 </div>
@@ -290,41 +269,12 @@
 
 <script>
   let m_costs = '{{costs |tojson |safe}}';
-  //auto popualate costs in the changesubscription form
-  //@rakesh -> it should be a popup form
   // Function to populate the table with dynamic data
   function populateTable() {
     const tableBody = document.getElementById('tableBody');
 
     // Replace this with actual data retrieval logic
-    const dummyData = [
-      { col1: 'Data 1-1', col2: 'Data 1-2', col3: 'Data 1-3', col4: 'Data 1-4' },
-      { col1: 'Data 2-1', col2: 'Data 2-2', col3: 'Data 2-3', col4: 'Data 2-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-
-      { col1: 'Data 3-1', col2: 'Data 3-2', col3: 'Data 3-3', col4: 'Data 3-4' },
-
-      // Add more data as needed
-    ];
+    const dummyData = '{{summary | tojson | safe}}'
 
     // Clear existing rows
     tableBody.innerHTML = '';
@@ -349,4 +299,3 @@
 </script> 
 </body>
 </html>
-

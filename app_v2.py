@@ -69,7 +69,8 @@ class DAILY_SUMMARY(db.Model):
     total_slots = db.Column(db.Integer,default = 10)
     available_slots = db.Column(db.Integer,server_default = '0')
     total_parkers = db.Column(db.Integer,server_default = '0')
-    hourly_price = db.Column(db.Integer,server_default = '10')
+    guest_hourly_price = db.Column(db.Integer,server_default = '10')
+    user_hourly_price = db.Column(db.Integer,server_default = '7')
     total_amount = db.Column(db.Integer,server_default = '0')
     member_count = db.Column(db.Integer,server_default = '0')
     non_member_count = db.Column(db.Integer,server_default = '0')
@@ -93,7 +94,7 @@ class SUBSCRIPTION(db.Model):
 def insert_def(*args,**kwargs):
         print('orreeeee')
         # db.session.add(DAILY_SUMMARY(date))
-        
+        db.session.add(INCOME(total_income =0))
         db.session.add(DAILY_SUMMARY(date = datetime.today()))
         db.session.add(SLOTS(date = datetime.today()))
         db.session.add(ADMIN(user_name='admin',password = 'admin123'))
@@ -303,6 +304,7 @@ def addtowallet():
     return redirect(url_for('dashboard'))
 
 
+
 @app.route('/reserve',methods=['POST'])
 @user_login_required
 def reserve():
@@ -408,6 +410,8 @@ def changeSubscriptionCost():
     flash('costs_changed')
     redirect(url_for('adminDashboard'))
 
+
+
 @app.route('/addUser',methods=['POST'])
 @admin_login_required
 def addUser():
@@ -439,9 +443,11 @@ def updateUserPassword():
 @admin_login_required
 def changeHourlyPrice():
     if request.method == 'POST':
-        DAILY_SUMMARY.query.filter_by(date = date.today()).update({'hourly_price':request.form['hourlyprice']})
+        DAILY_SUMMARY.query.filter_by(date = date.today()).update({'guest_hourly_price':request.form['guest_hourlyprice']})
+        DAILY_SUMMARY.query.filter_by(date = date.today()).update({'user_hourly_price':request.form['user_hourlyprice']})
         db.session.commit()
         flash('price_changed')
+        return gohome()
     return render_template('changeHourlyPrice.html',message = get_flashed_messages())
 
 @app.route('/viewAvailableSlots',methods=['POST'])
@@ -457,15 +463,6 @@ def showSummary():
     else:
         return render_template('showSummary.html')
 
-@app.route('/sesuroServ',methods = ['POST','GET'])#payment page
-def securoServ():
-    if request.method == 'POST':
-        if request.form['parkingid'].isnumeric():
-
-        checkin = TIME.query.filter_by()
-        return render_template('payment.html')
-    else:
-        TIME.request.form
 
         
 ##########################################################
@@ -504,88 +501,167 @@ def adminlogin():
                 return redirect(url_for('adminDashboard'))
             flash('invalid username / password')
             return redirect(url_for('adminlogin'))
+
+@app.route('/showDailySummary')
+@admin_login_required
+def showDailySummary():
+    table = DAILY_SUMMARY.query.all()
+
+    return render_template('adminDashboard.html',summary=json(table))
+
+
+
+@app.route('/adminSignup',methods = ['POST','GET'])
+def adminSignup():
+    if request.method =='POST':
+        
+        new_admin =ADMIN(user_name = request.form['username'],password = request.form['password'])
+        db.session.add(new_admin)
+        db.session.commit()
+        llogin_admin(new_admin)
+        return gohome()
+    else:
+        return render_template('adminSignUp.html')
 @app.route('/adminDashboard',methods=['GET'])
 @admin_login_required
 def adminDashboard():
     costs = SUBSCRIPTION.query.all()
     for row in costs:
+        dic={}
         dic[row.duration_in_days] = row.cost
-    return render_template('admindashboard.html',message = get_flashed_messages(),costs = costs)
+    return render_template('admindashboard.html',message = get_flashed_messages(),costs = dic)
 @app.route('/checkout',methods=['POST','GET'])
 def checkout():
-    if request.method == 'GET':
+    if request.method =='POST':
         
-        return render_template('securoserv.html')
-    else:
-
         if request.form['parkingId'].isnumeric():
             #guest
-            #redirect to payment page
-        else:
-            #user
-            #if not suffcient balance in wallet, redirect to payment
-@app.route('/checkout',methods=['POST'])
-def checkout():
-    #checkout time, calc the price, increase availableslots
-    #see if user exists
-    if request.form['parkingId'].isnumeric():
-        #guest 
-        hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
-        guest = TIME.query.filter_by(parking_id = int(request.form['parkingId'])).first()
-        
-        if guest:
-            if not guest.checkout_time == None:
-                flash('not_clocked_in')
-                return gohome()
-            slots = SLOTS.query.filter_by(date = date.today()).first()
-            slots.available_slots += 1
-            # time = TIME.query.filter_by(vehicle_number = guest.vehicle_number).order_by(desc( TIME.checkin_time )).first()
-            print('###########################')
-            to_charge = ceil((datetime.now() - guest.checkin_time).seconds /60 /60) * hourlyprice
-            if to_charge < hourlyprice:
-                to_charge = hourlyprice
-            guest.checkout_time = datetime.now()
-            # guest.amount_paid = to_charge
-            # TIME.update().where(TIME.parking_id == guest.guest_id).values(amount_paid = to_charge,checkout_time = guest.checkout_time)
-            guest.amount_paid = to_charge
-            guest.checkout_time = guest.checkout_time
-            p = INCOME.query.filter_by(id = 1).first()
-            p.total_income += to_charge
-            db.session.commit()
-            flash(f'Payment Successfull')
-            return gohome()
-        else:
-            flash('parking_id_not_found')
-            return gohome()
-    else:
-        #user -> if member, do not charge
-        user = USERS.query.filter_by(user_name = request.form['parkingId']).first()
-        if user:
-            hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
-            if not user.parking_status :
-                flash('not_clocked_in')
-                return gohome()
-            time = TIME.query.filter_by(parker = request.form['parkingId']).order_by(desc( TIME.checkin_time )).first()
-            to_charge = 0
-            time.checkout_time = datetime.now()
-            if user.membership == 0:
-                slots = SLOTS.query.filter_by(date = date.today()).first()
-                slots.available_slots += 1
-                to_charge = ceil((datetime.now() - time.checkin_time).seconds/60/60) * hourlyprice
-                
+            hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().guest_hourly_price
+            guest = TIME.query.filter_by(parking_id = int(request.form['parkingId'])).first()
+            if guest:
+                if not guest.checkout_time == None:
+                    flash ('not_clocked_in')
+                    return gohome()
+                to_charge = to_charge = ceil((datetime.now() - guest.checkin_time).seconds /60 /60) * hourlyprice
                 if to_charge < hourlyprice:
                     to_charge = hourlyprice
-                
-            p = INCOME.query.filter_by(id = 1).first()
-            p.total_income += to_charge
-            user.parking_status = 0   
-            time.amount_paid = to_charge
-            db.session.commit()
-            flash(f"{user.user_name} successfully checked-out at {datetime.now().strftime('%H:%m')}")
-            return gohome()
+                session['id'] = request.form['parkingId']
+                session['user_type'] = 'guest'
+                session['cost'] = to_charge
+                return render_template('payment.html',cost = to_charge)
+            else:
+                flash('parking_id_not_found')
+                return gohome()
+            #redirect to payment page
         else:
-            flash('invalid_username')
-            return gohome()
+            user = USERS.query.filter_by(user_name = request.form['parkingId']).first()
+            if user:
+                if not user.parking_status :
+                    flash('not_clocked_in')
+                    return gohome()
+                to_charge = 0
+                if user.membership == 0:
+                    hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().user_hourly_price
+                    to_charge = to_charge = ceil((datetime.now() - guest.checkin_time).seconds /60 /60) * hourlyprice
+                    if to_charge < hourlyprice:
+                        to_charge = hourlyprice
+                    session['id'] = user.user_name
+                    session['cost'] = to_charge
+                    session['user_type'] ='user'
+                    return redirect(url_for('securoPay'))
+                else:
+                    user = TIME.query.filter_by(parker = request.form['parkingId']).order_by(desc( TIME.checkin_time )).first()
+                    user.checkout_time = datetime.now()
+                    db.session.commit()
+                    flash(f"{user.user_name} successfully checked-out at {datetime.now().strftime('%H:%m')}")
+                    return gohome()
+
+            #user
+            #if not suffcient balance in wallet, redirect to payment
+            
+@app.route('/securoPay',methods=['POST'])           
+def securoPay():
+    if session['user_type'] == 'guest':
+        guest = TIME.query.filter_by(parking_id = session['id']).first()
+        guest.checkout_time = datetime.now()
+        guest.amount_paid = session['cost']
+        
+    else:
+        # user = USERS.query.filter_by(user_name = session['id']).first()
+        user = TIME.query.filter_by(parker = session['id']).order_by(desc( TIME.checkin_time )).first()
+        user.checkout_time = datetime.now()
+        user.amount_paid = session['cost']
+    p = INCOME.query.filter_by(id = 1).first()
+    p.total_income += session['cost']
+    slots = SLOTS.query.filter_by(date = date.today()).first()
+    slots.available_slots += 1
+    db.session.commit()    
+    flash(f'Payment Successfull')
+    return gohome()
+
+
+# @app.route('/checkout',methods=['POST'])
+# def checkout():
+#     #checkout time, calc the price, increase availableslots
+#     #see if user exists
+#     if request.form['parkingId'].isnumeric():
+#         #guest 
+#         hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
+#         guest = TIME.query.filter_by(parking_id = int(request.form['parkingId'])).first()
+        
+#         if guest:
+#             if not guest.checkout_time == None:
+#                 flash('not_clocked_in')
+#                 return gohome()
+#             slots = SLOTS.query.filter_by(date = date.today()).first()
+#             slots.available_slots += 1
+#             # time = TIME.query.filter_by(vehicle_number = guest.vehicle_number).order_by(desc( TIME.checkin_time )).first()
+#             print('###########################')
+#             to_charge = ceil((datetime.now() - guest.checkin_time).seconds /60 /60) * hourlyprice
+#             if to_charge < hourlyprice:
+#                 to_charge = hourlyprice
+#             guest.checkout_time = datetime.now()
+#             # guest.amount_paid = to_charge
+#             # TIME.update().where(TIME.parking_id == guest.guest_id).values(amount_paid = to_charge,checkout_time = guest.checkout_time)
+#             guest.amount_paid = to_charge
+#             guest.checkout_time = guest.checkout_time
+#             p = INCOME.query.filter_by(id = 1).first()
+#             p.total_income += to_charge
+#             db.session.commit()
+#             flash(f'Payment Successfull')
+#             return gohome()
+#         else:
+#             flash('parking_id_not_found')
+#             return gohome()
+#     else:
+#         #user -> if member, do not charge
+#         user = USERS.query.filter_by(user_name = request.form['parkingId']).first()
+#         if user:
+#             hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().hourly_price
+#             if not user.parking_status :
+#                 flash('not_clocked_in')
+#                 return gohome()
+#             time = TIME.query.filter_by(parker = request.form['parkingId']).order_by(desc( TIME.checkin_time )).first()
+#             to_charge = 0
+#             time.checkout_time = datetime.now()
+#             if user.membership == 0:
+#                 slots = SLOTS.query.filter_by(date = date.today()).first()
+#                 slots.available_slots += 1
+#                 to_charge = ceil((datetime.now() - time.checkin_time).seconds/60/60) * hourlyprice
+                
+#                 if to_charge < hourlyprice:
+#                     to_charge = hourlyprice
+                
+#             p = INCOME.query.filter_by(id = 1).first()
+#             p.total_income += to_charge
+#             user.parking_status = 0   
+#             time.amount_paid = to_charge
+#             db.session.commit()
+#             flash(f"{user.user_name} successfully checked-out at {datetime.now().strftime('%H:%m')}")
+#             return gohome()
+#         else:
+#             flash('invalid_username')
+#             return gohome()
 
     
 
