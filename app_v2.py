@@ -189,16 +189,18 @@ def gohome():
 # set path for invalid get endpoints -> done
 @app.route('/')
 def index():
-    msg = get_flashed_messages()
+    
     # slots = post('http://localhost:5000/fetchAvailableSlots').text
     slots = SLOTS.query.filter_by(date = date.today()).first().available_slots
 
     if 'is_authenticated' in session and session['is_authenticated'] == 1:
         if session['usertype']== 'user':
+            msg = get_flashed_messages()
             return redirect(url_for('dashboard'))
         return redirect(url_for('adminDashboard'))
+    
+    msg = get_flashed_messages()
     if msg:
-
         return render_template('index.html',message = msg[0],slots = slots)
     return render_template('index.html',slots = slots)
 
@@ -347,7 +349,7 @@ def subscribe():
         else:
             user =USERS.query.filter_by(user_name = session['user']).first()
             cos = SUBSCRIPTION.query.filter_by(duration_in_days = int( request.form['duration'])).first().cost
-            if user.wallet < cos:
+            if user.wallet_balance < cos:
                 flash('insufficient_balance')
                 return redirect(url_for('dashboard'))
             # ({'membership' : 1,'membership_start' : date.today(),'membership_end' :))})
@@ -607,6 +609,8 @@ def adminDashboard():
         msg = get_flashed_messages()
         if len(msg)>0:
             msg = get_flashed_messages()[0]
+            if len(msg)==0:
+                msg =''
     return render_template('admindashboard.html',messages = msg,costs = dic)
 
 @app.route('/checkout',methods=['POST','GET'])
@@ -616,8 +620,9 @@ def checkout():
         if request.form['parkingId'].isnumeric():
             #guest
             hourlyprice = DAILY_SUMMARY.query.filter_by(date = date.today()).first().guest_hourly_price
-            guest = TIME.query.filter_by(parking_id = int(request.form['parkingId'])).first()
-            if guest:
+            guest = TIME.query.filter_by(parking_id = int(request.form['parkingId'])).all()
+            if len(guest)!=0:
+                guest = guest[0]
                 if not guest.checkout_time == None:
                     flash ('not_clocked_in')
                     return gohome()
@@ -661,6 +666,9 @@ def checkout():
                     db.session.commit()
                     flash(f"{user.parker} successfully checked-out at {datetime.now().strftime('%H:%m')}")
                     return gohome()
+            else:
+                flash('parking_id_not_found')
+                return gohome()
 
             #user
             #if not suffcient balance in wallet, redirect to payment
@@ -770,7 +778,7 @@ def error405(e):
 
 if __name__ == "__main__":
     scheduler = BackgroundScheduler()
-    scheduler.add_job(func = daily_summary, trigger='cron', hour = 0, minute = 22 )  
+    scheduler.add_job(func = daily_summary, trigger='cron', hour = 11, minute = 58 )  
     # scheduler.add_job(func = notify_admin,trigger = 'interval',seconds = 60)
     scheduler.start()
 

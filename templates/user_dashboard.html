@@ -35,7 +35,7 @@
                             <div class="form-group">
                                 <form action="/addToWallet" id="addToWallet" method="post">
                                     <label for="addamount">Amount To Add </label>
-                                    <input type="text" class="form-control" id="addamount" name="addtowallet" placeholder="Enter amount to be added">  
+                                    <input type="text" class="form-control" id="addamount" name="addtowallet" placeholder="Enter amount to be added" required>  
                                 </form>
                             </div>
                             <div class="text-center">
@@ -56,22 +56,13 @@
                       <!-- Wallet Balance Card -->
                       <div class="card">
                           <div class="card-header">
-                          Reserve a Spot
+                          Available Slots
                           </div>
                           <div class="card-body">
                               <!-- Display the wallet balance here -->
                               <h3 class="text-center" id="occupancy">{{slots | safe}}</h3>
                               <!-- Add buttons for deposit and withdrawal -->
-                              <form  action="/spotreserve" method="POST">
-              
-                                  <div class="form-group">
-                                      <label for="reservetime">Check-In Time </label>
-                                      <input type="time" class="form-control" name="reservetime" />
-                                  </div>
-                                  <div class="text-center">
-                                      <button class="btn btn-success mr-2" id="reserve">Reserve</button>
-                                  </div>
-                                </form>
+                              
               
                           </div>
                       </div>
@@ -128,7 +119,7 @@
 <div class="form-check">
 
   <form action="/subscribe" id="subscribebutton" method="post">
-      <input type="radio" name="duration" id="flexRadioDefault1" value="28">
+      <input type="radio" name="duration" id="flexRadioDefault1" value="28" >
       <label class="form-check-label" for="flexRadioDefault1">
             1 Month (4 weeks)
       </label><br>

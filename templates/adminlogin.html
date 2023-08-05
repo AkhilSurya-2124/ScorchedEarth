@@ -13,7 +13,7 @@
 </head>
 <body>
   {% include 'nav.html' %}
-      <div  class="container mt-3">
+      <div  class="container mt-5">
         <div class="row ">
             <div class="col-md-4 col-sm-12 mb-4 ">
                 
@@ -35,22 +35,18 @@
                                   <div >
                                     <label for="username">User Name</label>
                                     <!-- @ change the id here -->
-                                    <input type="text" class="form-control" id="InputEmail1" name="username" placeholder="User Name" value="admin">
+                                    <input type="text" class="form-control" id="InputEmail1" name="username" placeholder="User Name" value="admin" required>
                                   </div>
                                   
                                     <label for="password">Password</label>
-                                    <input type="password" class="form-control" id="password"  name= "password" placeholder="Enter Password" value="admin123">
+                                    <input type="password" class="form-control" id="password"  name= "password" placeholder="Enter Password" value="admin123" required>
                                   </div>
                                   
                                   
                                   <div class="d-flex justify-content-center" style="flex-direction: column;"> <!-- Centering the button -->
                                     <button type="submit" class="btn btn-primary" id="submitbtn">Login</button>
                                   </div>
-                                  <hr  style=" height:1px;background-color: #3c3c3c" />
-                      <div class="d-flex justify-content-center" style="flex-direction: column;"> <!-- Centering the button -->
-                        <small style="text-align: center;">Don't have account? Create one</small><br>
-                        <a href="{{url_for('adminSignup')}}"><button style="display: block;width:100%" type="button" class="btn btn-primary" id="submitbtn" >Create Account</button></a> 
-                      </div>
+                     
                               </form>
                            
                         </div>
