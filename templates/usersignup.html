@@ -48,7 +48,7 @@
                                     <input type="password" class="form-control" id="password"  name= "password" placeholder="Enter Password" oninput="eevaluate()">
                                   </div>
                                   <div >
-                                    <label for="confirmpassword">Confirm Password</label>
+                                    
                                     <!-- @ put validation here -->
                                     <input type="password" class="form-control" id="confirmpassword" name= "confirmpassword" placeholder="re-enter Password" >
                                   </div>
@@ -73,8 +73,16 @@
                  
                   <li><span id="eight">&#x1F5D9;</span>Password should be atleast 8 characters</li>
               </ul>
-              </div>
+              </div>  
 </div>
+<div class="col-md-12 mt-2 col-sm-12 mb-4 ">
+            
+              <div id="myModal" >
+                <b></b>
+                
+              
+              </div>
+          </div>
           </div>
 
             
@@ -85,9 +93,36 @@
     </div> 
     
 <script>
-    if ('{{message | safe}}' == 'user_exists'){
-      document.getElementById('show').innerHTML = 'User name already exists, please try another user name'
+  let msg = '{{msg | safe}}';
+  console.log(msg);
+  if (msg != ''){
+  if (msg == 'user_exists'){
+      document.getElementById('myModal').innerHTML = 'User name already exists, please try another user name'
     }
+
+   
+        else if (msg == 'login_failed'){
+          document.getElementById('myModal').innerHTML = "Invalid username or password";
+        }
+        else if (msg == 'already_checkedin'){
+          document.getElementById('myModal').innerHTML = "Invalid input: User/Guest already clocked-in";
+        }
+        else{
+          document.getElementById('myModal').innerHTML = msg;
+        }
+        
+        document.getElementById('myModal').style.display = 'block';
+        
+      
+      setTimeout(()=>{
+          document.getElementById('myModal').style.display = 'none';
+        },10000
+        );
+}
+
+
+
+
     function flip(val){
         
         document.getElementById(val).innerHTML = "\u{2714}";

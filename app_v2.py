@@ -206,14 +206,15 @@ def index():
 def usercheckin():
     u_info = request.form   
     user_db = USERS.query.filter_by(user_name = u_info['username']).first()
-    if user_db and u_info['password'] == user_db.password:
+    slots = SLOTS.query.filter_by(date = date.today() ).first()
+    slots.available_slots -= 1
+    if user_db and u_info['password'] == user_db.password and slots.available_slots != 0:
         if user_db.parking_status == 1:
             flash('already_checkedin')
             return gohome()
         print('good checkin')
         flash(f'Hey there {user_db.user_name[0]}, your check-in time is {datetime.now().hour}:{datetime.now().minute}')
-        slots = SLOTS.query.filter_by(date = date.today() ).first()
-        slots.available_slots -= 1
+        
         #to-do include membership condition-> should i just do it myself?, in backend we can just
         #verify the condition at backend and calculated the price
         checkin = TIME(parker = user_db.user_name,checkin_time = datetime.now(),date = date.today(),vehicle_number = user_db.vehicle_number)
@@ -235,8 +236,9 @@ def signup():
             return redirect(url_for('dashboard'))
         else:
             user_inf = request.form
-            exist = USER.query.filter_by(user_name = user_inf).first()
-            if exist:
+            exist = USERS.query.filter_by(user_name = user_inf['username']).all()
+            print(exist)
+            if len(exist) >0:
                 flash('user_exists')
                 return redirect(url_for('signup'))
             #do some math here
@@ -248,7 +250,14 @@ def signup():
     else:
         if 'user' in session :
             return redirect(url_for('dashboard'))
-        return render_template('usersignup.html')
+        
+        msg = get_flashed_messages()
+        if len(msg) == 0:
+            msg =''
+        else:
+            msg = msg[0]
+        
+        return render_template('usersignup.html',msg=msg)
     
 
 @app.route('/userlogin',methods=['POST','GET'])
@@ -408,63 +417,108 @@ def changeTotalSlots():
     flash('total_slots_changed')
     return redirect(url_for('adminDashboard'))
 
-app.route('/changeSubcriptionCost',methods =['POST'])
+@app.route('/changeSubscriptionCost',methods =['POST'])
 @admin_login_required
 def changeSubscriptionCost():
     modify = request.form
-    # month=modify['month']
-    # month_3 = modify['month_3']
-    # month_6=modify['month_6']
-    # year = modify['year']
-    # a = 28
-    # for i in modify:
-    #     SLOTS.query.filter_by(duration_in_days = a).first().update({'cost':i})
-    #     a*=2
-    SLOTS.query.filter_by(date  = date.today()).first().update(request.form)
-    #now this i a bad design -> i think i made it better
+    a = [28,84,168,356]
+    j=0
+    keys_1 = sorted(modify.keys())
+    for i in keys_1:
+        if modify[i] != '':
+            SUBSCRIPTION.query.filter_by(duration_in_days = a[j]).update({'cost':modify[i]})
+        j+=1
+    # SLOTS.query.filter_by(date  = date.today()).first().update(request.form)
+    #now this i a bad design -> i think i made it better-> no went back to stupid
     db.session.commit()
     flash('costs_changed')
-    redirect(url_for('adminDashboard'))
+    return  redirect(url_for('adminDashboard'))
 
 
+@app.route('/searchArchives/<vehiclenumber>',methods = ['POST'])
+@admin_login_required
+def searchArchives(vehiclenumber):
+    print(vehiclenumber)
+    res = TIME.query.filter_by(vehicle_number =  vehiclenumber).all()
+    lis = []
+    columns =  TIME.__table__.columns.keys()
+    for row in res:
+        dic ={}
+        lis.append({column: getattr(row, column) for column in columns})
+    
+    return  jsonify(lis)
 
-@app.route('/addUser',methods=['POST'])
+
+@app.route('/adminAddUser',methods=['POST'])
 @admin_login_required
 def addUser():
     user = request.form
-    to_add = USERS(user_name = user['username'],password = user['password'],vehicle_number = user['vehiclenumber'],wallet_balance = user['wallet'])
+    if USERS.query.filter_by(user_name = user['userName']) is None:
+        flash('User name already exists, please try with another username')
+        print('User name already exists, please try with another username')
+        return redirect(url_for('adminDashboard'))
+    
+    to_add = USERS(user_name = user['userName'],password = user['password'],vehicle_number = user['vehiclenumber'])
     db.session.add(to_add)
-    db.sesison.commit()
+    db.session.commit()
     flash('User Successfully Added')
     return redirect(url_for('adminDashboard'))
     
-
-
-@app.route('/updateUserPassword',methods=['POST'])
+@app.route('/adminAddCheckin',methods=['POST'])
 @admin_login_required
-def updateUserPassword():
+def adminAddCheckin():
+    u_info = request.form   
+    user_db = USERS.query.filter_by(user_name = u_info['userName']).first()
+    if user_db :
+        if user_db.parking_status == 1:
+            flash('already_checkedin')
+            return redirect(url_for('adminDashboard'))
+        slots = SLOTS.query.filter_by(date = date.today() ).first()
+        if slots.available_slots  == 0:
+            print('No slots available to park')
+            return redirect(url_for('adminDashboard'))
+        flash(f' {user_db.user_name[0]}, checked-in at {datetime.now().hour}:{datetime.now().minute}')
+        
+        
+        print('good checkin')
+        slots.available_slots -= 1
+        #to-do include membership condition-> should i just do it myself?, in backend we can just
+        #verify the condition at backend and calculated the price
+        checkin = TIME(parker = user_db.user_name,checkin_time = datetime.now(),date = date.today(),vehicle_number = user_db.vehicle_number)
+        user_db.parking_status = 1
+        db.session.add(checkin)
+        db.session.commit()
+        return redirect(url_for('adminDashboard'))
+    print('bad checkin')
+    flash('login_failed')  
+    #do some math here
+    # return redirect(url_for('index'))
+    return redirect(url_for('adminDashboard'))
+
+@app.route('/adminUpdateUserPassword',methods=['POST'])
+@admin_login_required
+def adminUpdateUserPassword():
     if request.method == 'POST':
-        get_user_info = USERS.query.filter_by(user_name = request.form['username']).first()
+        get_user_info = USERS.query.filter_by(user_name = request.form['userName']).first()
         if get_user_info :
             get_user_info.password = request.form['password']
             db.session.commit()
         else:
-            flash('user_not_found')
-        return redirect(url_for('/updateUserPassword'))
-    else:
-        message = get_flashed_messages()
-        return render_template('updateUserPasword.html',message = message[0])
+            flash('User name not found')
+        return redirect(url_for('adminDashboard'))
+    
     
 @app.route('/changeHourlyPrice',methods = ['POST'])
 @admin_login_required
 def changeHourlyPrice():
-    if request.method == 'POST':
-        DAILY_SUMMARY.query.filter_by(date = date.today()).update({'guest_hourly_price':request.form['guest_hourlyprice']})
-        DAILY_SUMMARY.query.filter_by(date = date.today()).update({'user_hourly_price':request.form['user_hourlyprice']})
+        if request.form['guest_hourlyprice']:
+            DAILY_SUMMARY.query.filter_by(date = date.today()).update({'guest_hourly_price':request.form['guest_hourlyprice']})
+        if request.form['user_hourlyprice']:
+             DAILY_SUMMARY.query.filter_by(date = date.today()).update({'user_hourly_price':request.form['user_hourlyprice']})
         db.session.commit()
         flash('price_changed')
         return gohome()
-    return render_template('changeHourlyPrice.html',message = get_flashed_messages())
+    
 
 @app.route('/viewAvailableSlots',methods=['POST'])
 @admin_login_required
@@ -532,7 +586,6 @@ def showDailySummary():
     return  jsonify(lis)
 
 
-
 @app.route('/adminSignup',methods = ['POST','GET'])
 def adminSignup():
     if request.method =='POST':
@@ -551,7 +604,11 @@ def adminDashboard():
     for row in costs:
         dic={}
         dic[row.duration_in_days] = row.cost
-    return render_template('admindashboard.html',message = get_flashed_messages(),costs = dic)
+        msg = get_flashed_messages()
+        if len(msg)>0:
+            msg = get_flashed_messages()[0]
+    return render_template('admindashboard.html',messages = msg,costs = dic)
+
 @app.route('/checkout',methods=['POST','GET'])
 def checkout():
     if request.method =='POST':
@@ -578,7 +635,8 @@ def checkout():
         else:
             user = USERS.query.filter_by(user_name = request.form['parkingId']).first()
             if user:
-                if not user.parking_status :
+                if user.parking_status == 0:
+                    print('is a member')
                     flash('not_clocked_in')
                     return gohome()
                 to_charge = 0
@@ -588,17 +646,20 @@ def checkout():
                     to_charge = to_charge = ceil((datetime.now() - time.checkin_time).seconds /60 /60) * hourlyprice
                     if to_charge < hourlyprice:
                         to_charge = hourlyprice
+                    user.parking_status =0
                     session['id'] = user.user_name
                     session['cost'] = to_charge
                     session['user_type'] ='user'
+                    
                     return redirect(url_for('securoPay'))
                     
                     
                 else:
                     user = TIME.query.filter_by(parker = request.form['parkingId']).order_by(desc( TIME.checkin_time )).first()
                     user.checkout_time = datetime.now()
+                    user.parking_status = 0
                     db.session.commit()
-                    flash(f"{user.user_name} successfully checked-out at {datetime.now().strftime('%H:%m')}")
+                    flash(f"{user.parker} successfully checked-out at {datetime.now().strftime('%H:%m')}")
                     return gohome()
 
             #user
@@ -617,7 +678,12 @@ def securoPay():
             user = TIME.query.filter_by(parker = session['id']).order_by(desc( TIME.checkin_time )).first()
             user.checkout_time = datetime.now()
             user.amount_paid = session['cost']
-        USERS.query.filter_by(user_name = session['id']).update({'parking_status':0})
+            u = USERS.query.filter_by(user_name = session['id']).first()
+            u.parking_status = 0
+            if u.wallet_balance < session['cost']:
+                flash('insufficient balance')
+                return gohome()
+            u.wallet_balance -= session['cost']
         
         p = INCOME.query.filter_by(id = 1).first()
         p.total_income += session['cost']

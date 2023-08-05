@@ -20,7 +20,7 @@
     </style>
 </head>
 <body >
-  {% include 'nav.html' %}
+  {% include 'nav_loggedin.html' %}
 <div  style="display: flex;" ;>
   
   <!-- Main Content - 3/4th of the screen -->
@@ -28,6 +28,7 @@
     <div class="row">
       <!-- Row 2 -->
       <div class="col-md-4 mb-4">
+
         <div class="p-4 " id="container_1">
           <div class="card">
             <div class="card-header">
@@ -58,13 +59,13 @@
                           <thead id="tablehead">
                             <tr>
                               <th>Available Slots</th>
-                              <th>Date</th>
-                              <th>Guest Hourly Price</th>
-                              <th>Total Subscribers</th>
-                              <th>Total Non-Subscribed Users</th>
                               <th>Daily Turnover</th>
+                              <th>Date</th>
+                              <th>Guest Hourly Price</th>                              
+                              <th>Total Non-Subscribed Users</th>                              
                               <th>Total Parkers</th>
                               <th>Total Slots</th>
+                              <th>Total Subscribers</th>
                               <th>User Hourly Price</th>
                               
 
@@ -84,12 +85,11 @@
                 </div>
 
 
-
-      <div class="col-md-4 mb-4">
+<div class="col-md-4 mb-4">
         <div class="p-4 " id="container_1">
           <div class="card">
             <div class="card-header">
-               History
+              Search Archives
             </div>
             <div class="card-body">
               
@@ -98,11 +98,51 @@
             </div>
             <div class="card-footer text-muted">
               <div class="text-center">
-                <button class="btn btn-success mr-2" form="adminAddCheckOut" type="submit">History </button>
-            </div>            </div>
+                <button class="btn btn-success mr-2" data-bs-toggle="modal" data-bs-target="#staticBackdrop1" onclick="clearr(document.getElementById('tableBody_1'))">Search Archives </button>
+            </div>           
+           </div>
         </div>
             </div>
             
+      </div>
+       <!-- Modal -->
+       <div class="modal fade" id="staticBackdrop1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content" style="width: fit-content;">
+            <div class="modal-header">
+              <h1 class="modal-title fs-5" id="staticBackdropLabel">Search Archives</h1>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 400px; overflow-y: auto;width: 100%;">
+              <form >
+                <label for="searching">Search Vehicle Number</label><br>
+                <input type="text" id="searching" name="searching" placeholder="Enter name "><br>
+                <input type="button" class=" btn btn-success mt-2" value="Submit" onclick="mutton(document.getElementById('tableBody_1'))">
+              </form> 
+              <table class="table">
+                <thead id="tablehead">
+                  <tr>
+                    <th>Amount Paid</th>
+                    <th>Checkin Time</th>
+                    <th>Checkout Time</th>
+                    <th>Date</th>
+                    <th>Total Non-Subscribed Users</th>
+                    <th>Membership</th>
+                    <th>Parker</th>
+                    <th>Parking ID</th>
+                    <th>Vehicle Number</th>
+                  </tr>
+                </thead>
+                <tbody id="tableBody_1">
+                  <!-- Table rows will be dynamically generated here -->
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="col-md-4 mb-4">
@@ -114,9 +154,9 @@
             <div class="card-body">
                 
               <div class="form-group">
-                <form action="/adminAddCheckOut" id="adminAddCheckOut" method="post">
+                <form action="/checkout" id="adminAddCheckOut" method="post">
                     <label for="userName">Parking Id / User Name</label>
-                    <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter Parking-Id">  
+                    <input type="text" class="form-control" id="userName" name="parkingId" placeholder="Enter Parking-Id">  
                     </form>
             </div>
             
@@ -151,9 +191,10 @@
                 
                     
                     <div class="form-group">
-                        <form action="/addToWallet" id="addToWallet" method="post">
-                            <label for="addamount">Amount To Add </label>
-                            <input type="text" class="form-control" id="addamount" name="addtowallet" placeholder="Enter amount to be added">  
+                        <form action="/changeHourlyPrice" id="addToWallet" method="post">
+                            
+                            <input type="text" class="form-control" id="addamount" name="guest_hourlyprice" placeholder="Guest Hourly Price">  
+                            <input type="text" class="form-control" id="addamount" name="user_hourlyprice" placeholder="User Hourly Price">  
                         </form>
                     </div>
             </div>
@@ -178,9 +219,8 @@
                     <label for="userName">User Name </label>
                     <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name">  
                     <label for="password">Password </label>
-                    <input type="text" class="form-control" id="Password" name="Password" placeholder="Enter Password">  
-                    <label for="vehicleNo">Password </label>
-                    <input type="text" class="form-control" id="vehicleNo" name="vehicleNo" placeholder="Enter Vehicle Number">  
+                    <input type="text" class="form-control" id="Password" name="password" placeholder="Enter Password">  
+                    
                   </form>
             </div>
             
@@ -198,7 +238,32 @@
       
     </div>
 
-
+    <div class="col-md-4 mb-4">
+      <div class="p-4 " id="container_1">
+        <div class="card">
+          <div class="card-header">
+            Change Membership Cost
+            </div>
+          <div class="card-body">
+            <div class="form-group">
+              <form action="/changeSubscriptionCost" id="updateMembershipCost" method="post">
+                  <input type="text" class="form-control mt-2" id="userName-1" name="month_1" placeholder="1 Month">  
+                  <input type="text" class="form-control mt-2" id="Password-1" name="month_3" placeholder="3 Months">  
+                  <input type="text" class="form-control mt-2" id="vehicleNo-1" name="month_6" placeholder="6 Months">  
+                  <input type="text" class="form-control mt-2" id="vehicleNo-1" name="year" placeholder="1 Year: ">  
+                </form>
+          </div>
+          
+              
+              
+          </div>
+          <div class="card-footer text-muted">
+            <div class="text-center">
+              <button class="btn btn-success mr-2" form="updateMembershipCost" type="submit">Update Membership Cost </button>
+          </div>            </div>
+      </div>
+          </div>
+    </div>
 
     <div class="row">
       <!-- Row 3 -->
@@ -210,7 +275,7 @@
             </div>
             <div class="card-body">
               <div class="form-group">
-                <form action="/adminAddCheckIn" id="adminAddCheckIn" method="post">
+                <form action="/adminAddCheckin" id="adminAddCheckIn" method="post">
                     <label for="userName">User Name </label>
                     <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name">  
                     <label for="password">Password </label>
@@ -244,9 +309,9 @@
                             <label for="userName">User Name </label>
                             <input type="text" class="form-control" id="userName" name="userName" placeholder="Enter User Name">  
                             <label for="password">Password </label>
-                            <input type="text" class="form-control" id="Password" name="Password" placeholder="Enter Password">  
+                            <input type="text" class="form-control" id="password" name="password" placeholder="Enter Password">  
                             <label for="vehicleNo">Password </label>
-                            <input type="text" class="form-control" id="vehicleNo" name="vehicleNo" placeholder="Enter Vehicle Number">  
+                            <input type="text" class="form-control" id="vno" name="vehiclenumber" placeholder="Enter Vehicle Number">  
                           </form>
                     </div>
                     
@@ -279,6 +344,17 @@
 
 <script>
   
+  var flashes = '{{messages | safe}}';
+  var error = document.getElementById('errorMessage');
+  for (let i=0;i<flashes.length;i++){
+    if (flashes[i] ==  'user_exists'){
+      error.innerHTML = 'User name already exists, please try with another username'
+      continue;
+    }
+    else if (flashes[i] == 'user_not_found')
+    error.innerHTML = 'User name not found';
+  }
+
   function getdata(table){
     // table = document.getElementById('tableBody');
      table.innerHTML='';
@@ -293,12 +369,46 @@
           let s ='<tr>';
             for (let column in row) {
               s=s.concat(`<td>${row[column]}</td>`);
+              console.log(row[column]);
             }
           s=s.concat('</tr>');
           table.innerHTML += s;
         });
         
       })
+  }
+
+  function mutton(displayTable){
+    console.log('asdasda');
+    let username = document.getElementById('searching').value;
+    
+    displayTable.innerHTML = " <tr>No Data Found</tr>";
+    fetch(`/searchArchives/${username}`,{method :'POST'
+    
+  }).then(response=>response.json()).then(
+    data=>{
+      console.log(data);
+      if (data.length!=0)
+      {
+        displayTable.innerHTML =''
+        data.forEach(row=>{
+        let s = '<tr>';
+          for (let column in row){
+            
+            s=s.concat(`<td>${row[column]}</td>`);
+          }
+          
+          s=s.concat('</tr>');
+          displayTable.innerHTML += s;
+      }
+      )
+      }
+
+    }
+  )
+
+    
+    
   }
   // let m_costs = 
   // Function to populate the table with dynamic data
@@ -328,6 +438,9 @@
   // $('#staticBackdrop').on('shown.bs.modal', function () {
   //   populateTable();
   // });
+  function clearr(tag){
+    tag.innnerHTML = '';
+  }
 </script> 
 </body>
 </html>
